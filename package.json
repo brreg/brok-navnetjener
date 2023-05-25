@@ -3,18 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "docker start brok-navnetjener && DEBUG=navnetjener* next dev -p 3100",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start -p 3100",
+    "lint": "next lint",
+    "db:create": "docker run --name brok-navnetjener -p 6666:6666 -e POSTGRES_PASSWORD=password -d postgres -p 6666 && npx prisma generate && npx prisma migrate dev --name auth",
+    "db:update": "npx prisma generate && npx prisma migrate dev --name auth",
+    "db:delete": "docker stop brok-navnetjener && docker rm brok-navnetjener"
   },
   "dependencies": {
+    "@prisma/client": "4.14.1",
     "@types/node": "20.2.3",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
+    "debug": "^4.3.4",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.4.0",
     "next": "13.4.3",
+    "prisma": "^4.14.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "5.0.4"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.8"
   }
 }

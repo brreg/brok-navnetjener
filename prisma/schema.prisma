@@ -1,0 +1,15 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Shareholder {
+  id                   Int    @id @default(autoincrement())
+  name                 String
+  sosialSecurityNumber BigInt
+  ethereumWallet       String @unique
+}
