@@ -9,6 +9,15 @@ const log = debug('navnetjener:api:shareholder');
 
 const prisma = new PrismaClient();
 
+/**
+ * @swagger
+ * /api/shareholder:
+ *   get:
+ *     description: Jada3
+ *     responses:
+ *       200:
+ *         description: hello world
+ */
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   log(`HTTP ${req.method} ${req.url}`);
   try {
