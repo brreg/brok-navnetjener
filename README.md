@@ -1,38 +1,76 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# API for BRØK Navnetjener
 
-## Getting Started
+## Beskrivelse
 
-First, run the development server:
+API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn, fødselsdato, og lommebokadresser. Den gir fagsystemer mulighet til å lese og skrive data mens offentlig lesing er tilgjengelig med begrensninger.
+
+## Funksjonaliteter
+
+### Nåværende:
+
+* `Create(firstname, lastename, ssn, walletAddress)`: Oppretter en ny post.
+* `GET /wallet/{walletAddress}`: Returnerer navn og fødselsdato for en gitt lommebokadresse.
+* `GET /wallet`: Lister ut alle registrerte navn og fødselsdato.
+* Tester: Inkluderer tester for å validere systemets funksjonalitet.
+
+### Planlagt:
+
+* Implementering av enkel one-liner for oppsett inkludert skjema.
+* Teste "Setup dev".
+* Logging: For å overvåke og feilsøke systemets aktiviteter.
+* Auth: Evt. integrere med BR sin API manager for autentisering.
+* `Read(SSN)`: Returnerer alle lommebokadresser tilhørende brukeren.
+
+### Fremtidig arbeid
+
+* Sletting av data.
+* Oppdatering av data, hvis det er nødvendig.
+* Støtte for beskyttede personer kode 6 og 7 i Folkeregisteret.
+
+## Autentisering
+
+* Skriveadgang er begrenset til fagsystemer.
+* Lesing er åpent for alle med begrensninger.
+
+## Beskyttelse mot datakryping
+
+* Hvis nødvendig, kan man implementere throttling for å begrense antall spørringer. F.eks. DN vil ha behov for mange spørringer. Ongoing work med Sverre.
+
+## Produksjon
+
+* Vurder å slå av `GET /wallet`.
+
+## Oppsett for utvikling
+
+### Krav
+
+* PostgreSQL database
+* Go 1.20+
+
+### Instruksjoner
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+git clone
+cd brok-navnetjener
+copy .env .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+* Rediger .env.local med DB-informasjon.
+* Opprett skjemaet i databasen.
+* Start databasen.
+* Last ned nødvendige pakker: `go mod download`.
+* Kjør applikasjonen: `go run .`.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### Testing
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+* For å kjøre testene, bruk kommandoen: `go test`.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### Bygging
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+* For å opprette en binærfil, bruk kommandoen: `go build`.
 
-## Learn More
+## Arkitektur
 
-To learn more about Next.js, take a look at the following resources:
+Navnetjeneren i den overordnede arkitekturen kan sees i følgende diagram:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+![image](https://github.com/brreg/brok-navnetjener/assets/877417/266b0aaa-81d1-4fa6-a1f3-a463f96bcca6)
