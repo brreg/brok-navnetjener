@@ -8,7 +8,7 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 
 ### Nåværende:
 
-* `Create(firstname, lastename, ssn, walletAddress)`: Oppretter en ny post.
+* `POST /wallet firstname, lastename, ssn, walletAddress`: Oppretter en ny wallet-mapping.
 * `GET /wallet/{walletAddress}`: Returnerer navn og fødselsdato for en gitt lommebokadresse.
 * `GET /wallet`: Lister ut alle registrerte navn og fødselsdato.
 * Tester: Inkluderer tester for å validere systemets funksjonalitet.
@@ -44,26 +44,29 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 
 ### Krav
 
-* PostgreSQL database
+* Docker
 * Go 1.20+
 
 ### Instruksjoner
 
 ```bash
-git clone
+git clone git@github.com:brreg/brok-navnetjener.git
 cd brok-navnetjener
-copy .env .env.local
+git checkout go
+go mod download
+docker run --name navnetjener -e POSTGRES_PASSWORD="password" -p 5432:5432 postgres -p 5432
+docker exec -it navnetjener psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE brok;"
 ```
 
-* Rediger .env.local med DB-informasjon.
-* Opprett skjemaet i databasen.
-* Start databasen.
-* Last ned nødvendige pakker: `go mod download`.
-* Kjør applikasjonen: `go run .`.
+### Kjør i dev
+
+* For å kjøre i dev, bruk kommandoen: `go run .`.
+
 
 ### Testing
 
 * For å kjøre testene, bruk kommandoen: `go test`.
+
 
 ### Bygging
 
