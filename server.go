@@ -20,7 +20,7 @@ func main() {
 
 func loadEnv() {
 	if os.Getenv("DOCKER") != "true" {
-		err := godotenv.Load(".env")
+		err := godotenv.Load(".env.local")
 		if err != nil {
 			log.Fatal("Error loading .env file")
 		}
