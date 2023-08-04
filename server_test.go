@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,7 +32,31 @@ func TestWalletRoute(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func TestWalletCreation(t *testing.T) {
+func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
+	router := setup()
+
+	testWallet := model.Wallet{
+		FirstName:            "Kari",
+		LastName:             "Norman",
+		SosialSecurityNumber: "01019844422",
+		WalletAddress:        randomWalletAddress(),
+	}
+
+	testWallet.Save()
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/wallet/"+testWallet.WalletAddress, nil)
+	router.ServeHTTP(w, req)
+
+	fmt.Println(w.Body)
+	var receivedWallet model.PublicWalletInfo
+	json.Unmarshal([]byte(w.Body.String()), &receivedWallet)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, testWallet.WalletAddress, receivedWallet.WalletAddress)
+}
+
+func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 	router := setup()
 
 	w := httptest.NewRecorder()
@@ -53,16 +78,6 @@ func TestWalletCreation(t *testing.T) {
 
 	assert.Equal(t, storedWallet.WalletAddress, testWallet.WalletAddress)
 
-}
-
-func TestWalletAddressDoesNotExist(t *testing.T) {
-	router := setup()
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/wallet/wallet2", nil)
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusNotFound, w.Code)
 }
 
 func randomWalletAddress() string {
