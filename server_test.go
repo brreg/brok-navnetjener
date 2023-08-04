@@ -7,10 +7,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	r "math/rand"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/bxcodec/faker/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,12 +37,7 @@ func TestWalletRoute(t *testing.T) {
 func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 	router := setup()
 
-	testWallet := model.Wallet{
-		FirstName:            "Kari",
-		LastName:             "Norman",
-		SosialSecurityNumber: "01019844422",
-		WalletAddress:        randomWalletAddress(),
-	}
+	testWallet := createTestWallet()
 
 	testWallet.Save()
 
@@ -59,17 +56,13 @@ func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 	router := setup()
 
-	w := httptest.NewRecorder()
-	testWallet := model.Wallet{
-		FirstName:            "Kari",
-		LastName:             "Norman",
-		SosialSecurityNumber: "01019844422",
-		WalletAddress:        randomWalletAddress(),
-	}
+	testWallet := createTestWallet()
+
 	json, _ := json.Marshal(testWallet)
 	req, _ := http.NewRequest("POST", "/wallet", bytes.NewReader(json))
 	req.Header.Set("Content-Type", "application/json")
 
+	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
@@ -84,4 +77,18 @@ func randomWalletAddress() string {
 	bytes := make([]byte, 20)
 	rand.Read(bytes)
 	return "0x" + hex.EncodeToString(bytes)
+}
+
+func createTestWallet() model.Wallet {
+	return model.Wallet{
+		FirstName:            faker.FirstNameFemale(),
+		LastName:             faker.LastName(),
+		CompanyOrgnr:         randomNumber(11111111, 99999999), // Use 8 digits orgnr for testing
+		SosialSecurityNumber: randomNumber(0, 30) + randomNumber(1, 12) + randomNumber(78, 99) + "00000",
+		WalletAddress:        randomWalletAddress(),
+	}
+}
+
+func randomNumber(min int, max int) string {
+	return fmt.Sprintf("%02d", r.Intn(max-min)+min)
 }
