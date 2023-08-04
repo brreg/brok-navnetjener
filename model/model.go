@@ -10,6 +10,7 @@ type Wallet struct {
 	gorm.Model
 	FirstName            string `gorm:"size:255;not null" json:"first_name"`
 	LastName             string `gorm:"size:255;not null" json:"last_name"`
+	CompanyOrgnr         string `gorm:"size:9;not null" json:"company_orgnr"`
 	SosialSecurityNumber string `gorm:"size:11;not null" json:"sosial_security_number"`
 	WalletAddress        string `gorm:"size:42;not null;unique" json:"wallet_address"`
 }
@@ -17,6 +18,7 @@ type Wallet struct {
 type PublicWalletInfo struct {
 	FirstName     string `json:"first_name"`
 	LastName      string `json:"last_name"`
+	CompanyOrgnr  string `json:"company_orgnr"`
 	YearBorn      string `json:"year_born"`
 	WalletAddress string `json:"wallet_address"`
 }
@@ -63,6 +65,7 @@ func parseWalletToPublicInfo(wallet Wallet) PublicWalletInfo {
 	return PublicWalletInfo{
 		FirstName:     wallet.FirstName,
 		LastName:      wallet.LastName,
+		CompanyOrgnr:  wallet.CompanyOrgnr,
 		YearBorn:      wallet.SosialSecurityNumber[4:6],
 		WalletAddress: wallet.WalletAddress,
 	}
