@@ -12,7 +12,6 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 * `GET /wallet/{walletAddress}`: Returnerer navn og fødselsdato for en gitt lommebokadresse.
 * `GET /wallet`: Lister ut registrert navn og fødselsdato.
 * Tester: Inkluderer tester for å validere systemets funksjonalitet.
-* Integrere FM Person i Navnetjeneren
 
 ### Planlagt:
 
@@ -20,6 +19,7 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 * Logging: For å overvåke og feilsøke systemets aktiviteter.
 * Auth: Evt. integrere med BR sin API manager for autentisering.
 * `Read(SSN)`: Returnerer alle lommebokadresser tilhørende brukeren.
+* Integrere FM Person i Navnetjeneren
 
 ### Fremtidig arbeid
 
