@@ -32,6 +32,21 @@ func (wallet *Wallet) Save() (*Wallet, error) {
 	return wallet, nil
 }
 
+func FindWalletByPnr(pnr string) ([]PublicWalletInfo, error) {
+	var wallets []Wallet
+	var publicWallets []PublicWalletInfo
+	err := database.Database.Where("pnr=?", pnr).Find(&wallets).Error
+	if err != nil {
+		return []PublicWalletInfo{}, err
+	}
+
+	for _, wallet := range wallets {
+		publicWallets = append(publicWallets, parseWalletToPublicInfo(wallet))
+	}
+
+	return publicWallets, nil
+}
+
 func FindWalletByWalletAddress(walletAddress string) (PublicWalletInfo, error) {
 	var wallet Wallet
 	err := database.Database.Where("wallet_address=?", walletAddress).Find(&wallet).Error
