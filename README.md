@@ -19,6 +19,7 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 * Logging: For å overvåke og feilsøke systemets aktiviteter.
 * Auth: Evt. integrere med BR sin API manager for autentisering.
 * `Read(SSN)`: Returnerer alle lommebokadresser tilhørende brukeren.
+* Integrere FM Person i Navnetjeneren
 
 ### Fremtidig arbeid
 
@@ -53,6 +54,7 @@ git clone git@github.com:brreg/brok-navnetjener.git
 cd brok-navnetjener
 git checkout go
 go mod download
+cp .env .env.local
 docker run --name navnetjener -e POSTGRES_PASSWORD="password" -p 5432:5432 postgres -p 5432
 docker exec -it navnetjener psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE brok;"
 ```

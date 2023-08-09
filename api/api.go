@@ -10,7 +10,7 @@ import (
 func GetWalletByID(context *gin.Context) {
 	walletAddress := context.Param("walletAddress")
 
-	wallet, err := model.FindWalletByAddress(walletAddress)
+	wallet, err := model.FindWalletByWalletAddress(walletAddress)
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

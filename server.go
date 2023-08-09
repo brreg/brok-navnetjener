@@ -20,7 +20,7 @@ func main() {
 
 func loadEnv() {
 	if os.Getenv("DOCKER") != "true" {
-		err := godotenv.Load(".env")
+		err := godotenv.Load(".env.local")
 		if err != nil {
 			log.Fatal("Error loading .env file")
 		}
@@ -34,8 +34,9 @@ func loadDatabase() {
 
 func serveApplication() {
 	router := routerConfig()
-	router.Run(":8080")
-	fmt.Println("Server running at port 8080")
+	port := os.Getenv("SERVER_PORT")
+	router.Run(":" + port)
+	fmt.Printf("Server running at port %s", port)
 }
 
 func routerConfig() *gin.Engine {
