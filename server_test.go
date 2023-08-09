@@ -2,17 +2,13 @@ package main
 
 import (
 	"brok/navnetjener/model"
+	"brok/navnetjener/utils"
 	"bytes"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
-	r "math/rand"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bxcodec/faker/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -37,7 +33,7 @@ func TestWalletRoute(t *testing.T) {
 func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 	router := setup()
 
-	testWallet := createTestWallet()
+	testWallet := utils.CreateTestWallet()
 
 	testWallet.Save()
 
@@ -45,7 +41,6 @@ func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/wallet/"+testWallet.WalletAddress, nil)
 	router.ServeHTTP(w, req)
 
-	fmt.Println(w.Body)
 	var receivedWallet model.PublicWalletInfo
 	json.Unmarshal([]byte(w.Body.String()), &receivedWallet)
 
@@ -56,7 +51,7 @@ func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 	router := setup()
 
-	testWallet := createTestWallet()
+	testWallet := utils.CreateTestWallet()
 
 	json, _ := json.Marshal(testWallet)
 	req, _ := http.NewRequest("POST", "/wallet", bytes.NewReader(json))
@@ -67,28 +62,8 @@ func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	storedWallet, _ := model.FindWalletByAddress(testWallet.WalletAddress)
+	storedWallet, _ := model.FindWalletByWalletAddress(testWallet.WalletAddress)
 
 	assert.Equal(t, storedWallet.WalletAddress, testWallet.WalletAddress)
 
-}
-
-func randomWalletAddress() string {
-	bytes := make([]byte, 20)
-	rand.Read(bytes)
-	return "0x" + hex.EncodeToString(bytes)
-}
-
-func createTestWallet() model.Wallet {
-	return model.Wallet{
-		FirstName:            faker.FirstNameFemale(),
-		LastName:             faker.LastName(),
-		CompanyOrgnr:         randomNumber(11111111, 99999999), // Use 8 digits orgnr for testing
-		SosialSecurityNumber: randomNumber(0, 30) + randomNumber(1, 12) + randomNumber(78, 99) + "00000",
-		WalletAddress:        randomWalletAddress(),
-	}
-}
-
-func randomNumber(min int, max int) string {
-	return fmt.Sprintf("%02d", r.Intn(max-min)+min)
 }
