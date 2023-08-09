@@ -8,17 +8,18 @@ import (
 
 type Wallet struct {
 	gorm.Model
-	FirstName            string `gorm:"size:255;not null" json:"first_name"`
-	LastName             string `gorm:"size:255;not null" json:"last_name"`
-	CompanyOrgnr         string `gorm:"size:9;not null" json:"company_orgnr"`
-	SosialSecurityNumber string `gorm:"size:11;not null" json:"sosial_security_number"`
-	WalletAddress        string `gorm:"size:42;not null;unique" json:"wallet_address"`
+	FirstName     string `gorm:"size:255;not null" json:"first_name"`
+	LastName      string `gorm:"size:255;not null" json:"last_name"`
+	Orgnr         string `gorm:"size:9;not null" json:"orgnr"`
+	Pnr           string `gorm:"size:11;not null" json:"pnr"`
+	YearBorn      string `gorm:"size:2;not null" json:"year_born"`
+	WalletAddress string `gorm:"size:42;not null;unique" json:"wallet_address"`
 }
 
 type PublicWalletInfo struct {
 	FirstName     string `json:"first_name"`
 	LastName      string `json:"last_name"`
-	CompanyOrgnr  string `json:"company_orgnr"`
+	Orgnr         string `json:"orgnr"`
 	YearBorn      string `json:"year_born"`
 	WalletAddress string `json:"wallet_address"`
 }
@@ -31,7 +32,7 @@ func (wallet *Wallet) Save() (*Wallet, error) {
 	return wallet, nil
 }
 
-func FindWalletByAddress(walletAddress string) (PublicWalletInfo, error) {
+func FindWalletByWalletAddress(walletAddress string) (PublicWalletInfo, error) {
 	var wallet Wallet
 	err := database.Database.Where("wallet_address=?", walletAddress).Find(&wallet).Error
 	if err != nil {
@@ -65,8 +66,8 @@ func parseWalletToPublicInfo(wallet Wallet) PublicWalletInfo {
 	return PublicWalletInfo{
 		FirstName:     wallet.FirstName,
 		LastName:      wallet.LastName,
-		CompanyOrgnr:  wallet.CompanyOrgnr,
-		YearBorn:      wallet.SosialSecurityNumber[4:6],
+		Orgnr:         wallet.Orgnr,
+		YearBorn:      wallet.YearBorn,
 		WalletAddress: wallet.WalletAddress,
 	}
 }
