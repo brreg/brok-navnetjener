@@ -7,8 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// List out all wallets belonging to a person
+type PersonResponse struct {
+	WalletAddress string
+}
+
 func GetWalletByPnr(context *gin.Context) {
 	pnr := context.Param("pnr")
+	var response []PersonResponse
 
 	wallets, err := model.FindWalletByPnr(pnr)
 	if err != nil {
@@ -21,7 +27,13 @@ func GetWalletByPnr(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, wallets)
+	for _, wallet := range wallets {
+		response = append(response, PersonResponse{
+			WalletAddress: wallet.WalletAddress,
+		})
+	}
+
+	context.JSON(http.StatusOK, response)
 }
 
 func GetWalletByWalletAddress(context *gin.Context) {
