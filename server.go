@@ -47,5 +47,7 @@ func routerConfig() *gin.Engine {
 
 	router.GET("/person/:pnr", api.GetWalletByPnr)
 
+	router.GET("/company/:orgnr", api.GetWalletByOrgnr)
+
 	return router
 }

@@ -84,10 +84,44 @@ func TestShouldFindAllFiveWalletsBelongingToPerson(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var receivedWallet []model.PublicWalletInfo
+	var receivedWallet []struct {
+		WalletAddress string `json:"wallet_address"`
+	}
 	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
 		panic(err.Error())
 	}
 	assert.Equal(t, len(receivedWallet), 5)
+
+	for i, wallet := range receivedWallet {
+		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
+	}
+
+}
+
+func TestShouldFindAllShareholderForCompany(t *testing.T) {
+	// Setup
+	router := setup()
+
+	testWallets := utils.CreateSevenTestWalletsForOneCompany()
+	for _, wallet := range testWallets {
+		wallet.Save()
+	}
+
+	// Test
+	req, _ := http.NewRequest("GET", "/company/"+testWallets[0].Orgnr, nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var receivedWallet []model.PublicWalletInfo
+	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
+		panic(err.Error())
+	}
+	assert.Equal(t, len(receivedWallet), 7)
+
+	for i, wallet := range receivedWallet {
+		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
+	}
 
 }
