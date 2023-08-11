@@ -7,7 +7,36 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetWalletByID(context *gin.Context) {
+// List out all wallets belonging to a person
+type PersonResponse struct {
+	WalletAddress string
+}
+
+func GetWalletByPnr(context *gin.Context) {
+	pnr := context.Param("pnr")
+	var response []PersonResponse
+
+	wallets, err := model.FindWalletByPnr(pnr)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(wallets) == 0 {
+		context.JSON(http.StatusNotFound, gin.H{"error": "no wallet found"})
+		return
+	}
+
+	for _, wallet := range wallets {
+		response = append(response, PersonResponse{
+			WalletAddress: wallet.WalletAddress,
+		})
+	}
+
+	context.JSON(http.StatusOK, response)
+}
+
+func GetWalletByWalletAddress(context *gin.Context) {
 	walletAddress := context.Param("walletAddress")
 
 	wallet, err := model.FindWalletByWalletAddress(walletAddress)
@@ -25,14 +54,16 @@ func GetWalletByID(context *gin.Context) {
 }
 
 func CreateWallet(context *gin.Context) {
-	var input model.Wallet
+	var newWallet model.Wallet
 
-	if err := context.ShouldBindJSON(&input); err != nil {
+	if err := context.ShouldBindJSON(&newWallet); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Could not parse body"})
 		return
 	}
 
-	savedWallet, err := input.Save()
+	newWallet.YearBorn = newWallet.Pnr[4:6]
+
+	savedWallet, err := newWallet.Save()
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Could not store in database"})
 		return

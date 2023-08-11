@@ -42,8 +42,10 @@ func serveApplication() {
 func routerConfig() *gin.Engine {
 	router := gin.Default()
 	router.GET("/wallet", api.GetAllWallets)
-	router.GET("/wallet/:walletAddress", api.GetWalletByID)
+	router.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
 	router.POST("/wallet", api.CreateWallet)
+
+	router.GET("/person/:pnr", api.GetWalletByPnr)
 
 	return router
 }

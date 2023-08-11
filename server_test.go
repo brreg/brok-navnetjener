@@ -67,3 +67,27 @@ func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 	assert.Equal(t, storedWallet.WalletAddress, testWallet.WalletAddress)
 
 }
+
+func TestShouldFindAllFiveWalletsBelongingToPerson(t *testing.T) {
+	// Setup
+	router := setup()
+
+	testWallets := utils.CreateFiveTestWalletsForOnePerson()
+	for _, wallet := range testWallets {
+		wallet.Save()
+	}
+
+	// Test
+	req, _ := http.NewRequest("GET", "/person/"+testWallets[0].Pnr, nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var receivedWallet []model.PublicWalletInfo
+	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
+		panic(err.Error())
+	}
+	assert.Equal(t, len(receivedWallet), 5)
+
+}
