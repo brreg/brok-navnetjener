@@ -19,11 +19,9 @@ func main() {
 }
 
 func loadEnv() {
-	if os.Getenv("DOCKER") != "true" {
-		err := godotenv.Load(".env.local")
-		if err != nil {
-			log.Fatal("Error loading .env file")
-		}
+	err := godotenv.Load(".env.local")
+	if err != nil {
+		log.Print("Error loading .env.local file")
 	}
 }
 
@@ -46,6 +44,8 @@ func routerConfig() *gin.Engine {
 	router.POST("/wallet", api.CreateWallet)
 
 	router.GET("/person/:pnr", api.GetWalletByPnr)
+
+	router.GET("/company/:orgnr", api.GetWalletByOrgnr)
 
 	return router
 }

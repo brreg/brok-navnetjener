@@ -9,7 +9,24 @@ import (
 
 // List out all wallets belonging to a person
 type PersonResponse struct {
-	WalletAddress string
+	WalletAddress string `json:"wallet_address"`
+}
+
+func GetWalletByOrgnr(context *gin.Context) {
+	orgnr := context.Param("orgnr")
+
+	wallets, err := model.FindWalletByOrgnr(orgnr)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(wallets) == 0 {
+		context.JSON(http.StatusNotFound, gin.H{"error": "no wallet found"})
+		return
+	}
+
+	context.JSON(http.StatusOK, wallets)
 }
 
 func GetWalletByPnr(context *gin.Context) {
