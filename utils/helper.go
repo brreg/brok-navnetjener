@@ -12,21 +12,22 @@ import (
 )
 
 func CreateSevenTestWalletsForOneCompany() []model.Wallet {
-	orgnr := randomNumber(11111111, 99999999) // Use 8 digits orgnr for testing
+	orgnr := randomNumberInt(11111111, 99999999) // Use 8 digits orgnr for testing
 
 	var wallets []model.Wallet
 
 	for i := 0; i < 7; i++ {
-		dateBorn := randomNumber(0, 30)
+		dateBorn := randomNumber(1, 30)
 		mountBorn := randomNumber(1, 12)
 		yearBorn := randomNumber(68, 99)
+		birthDate := dateBorn + mountBorn + yearBorn
 
 		wallets = append(wallets, model.Wallet{
 			FirstName:     faker.FirstNameFemale(),
 			LastName:      faker.LastName(),
 			Orgnr:         orgnr,
-			Pnr:           string(dateBorn) + string(mountBorn) + string(yearBorn) + "00000",
-			YearBorn:      string(yearBorn),
+			Pnr:           birthDate + "00000",
+			BirthDate:     birthDate,
 			WalletAddress: randomWalletAddress(),
 		})
 	}
@@ -42,7 +43,7 @@ func CreateFiveTestWalletsForOnePerson() []model.Wallet {
 	mountBorn := randomNumber(1, 12)
 	yearBorn := randomNumber(68, 99)
 
-	pnr := fmt.Sprintf("%v%v%v00000", dateBorn, mountBorn, yearBorn)
+	birthDate := dateBorn + mountBorn + yearBorn
 
 	var wallets []model.Wallet
 
@@ -50,9 +51,9 @@ func CreateFiveTestWalletsForOnePerson() []model.Wallet {
 		wallets = append(wallets, model.Wallet{
 			FirstName:     firstName,
 			LastName:      lastName,
-			Orgnr:         randomNumber(11111111, 99999999), // Use 8 digits orgnr for testing
-			Pnr:           pnr,
-			YearBorn:      string(yearBorn),
+			Orgnr:         randomNumberInt(11111111, 99999999), // Use 8 digits orgnr for testing
+			Pnr:           birthDate + "00000",
+			BirthDate:     birthDate,
 			WalletAddress: randomWalletAddress(),
 		})
 	}
@@ -64,12 +65,15 @@ func CreateTestWallet() model.Wallet {
 	dateBorn := randomNumber(0, 30)
 	mountBorn := randomNumber(1, 12)
 	yearBorn := randomNumber(68, 99)
+
+	birthDate := dateBorn + mountBorn + yearBorn
+
 	return model.Wallet{
 		FirstName:     faker.FirstNameFemale(),
 		LastName:      faker.LastName(),
-		Orgnr:         randomNumber(11111111, 99999999), // Use 8 digits orgnr for testing
-		Pnr:           string(dateBorn) + string(mountBorn) + string(yearBorn) + "00000",
-		YearBorn:      string(yearBorn),
+		Orgnr:         randomNumberInt(11111111, 99999999), // Use 8 digits orgnr for testing
+		Pnr:           birthDate + "00000",
+		BirthDate:     birthDate,
 		WalletAddress: randomWalletAddress(),
 	}
 }
@@ -77,6 +81,11 @@ func CreateTestWallet() model.Wallet {
 func randomNumber(min int, max int) string {
 	random := r.New(r.NewSource(time.Now().UnixNano()))
 	return fmt.Sprintf("%02d", random.Intn(max-min)+min)
+}
+
+func randomNumberInt(min int, max int) int {
+	random := r.New(r.NewSource(time.Now().UnixNano()))
+	return random.Intn(max-min) + min
 }
 
 func randomWalletAddress() string {

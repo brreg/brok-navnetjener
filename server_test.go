@@ -5,6 +5,7 @@ import (
 	"brok/navnetjener/utils"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -108,7 +109,7 @@ func TestShouldFindAllShareholderForCompany(t *testing.T) {
 	}
 
 	// Test
-	req, _ := http.NewRequest("GET", "/company/"+testWallets[0].Orgnr, nil)
+	req, _ := http.NewRequest("GET", "/company/"+fmt.Sprint(testWallets[0].Orgnr), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
