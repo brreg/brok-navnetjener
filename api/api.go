@@ -78,7 +78,7 @@ func CreateWallet(context *gin.Context) {
 		return
 	}
 
-	newWallet.YearBorn = newWallet.Pnr[4:6]
+	newWallet.BirthDate = newWallet.Pnr[:6]
 
 	savedWallet, err := newWallet.Save()
 	if err != nil {
