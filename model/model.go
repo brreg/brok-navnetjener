@@ -8,34 +8,39 @@ import (
 
 type Wallet struct {
 	gorm.Model
-	FirstName     string `gorm:"size:255;not null" json:"first_name"`
-	LastName      string `gorm:"size:255;not null" json:"last_name"`
-	Orgnr         string `gorm:"size:9;not null" json:"orgnr"`
-	Pnr           string `gorm:"size:11;not null" json:"pnr"`
-	YearBorn      string `gorm:"size:2;not null" json:"year_born"`
-	WalletAddress string `gorm:"size:42;not null;unique" json:"wallet_address"`
+	FirstName     string `gorm:"size:255;not null" json:"first_name" binding:"required"`
+	LastName      string `gorm:"size:255;not null" json:"last_name" binding:"required"`
+	Orgnr         int    `gorm:"not null" json:"orgnr" binding:"required"`
+	Pnr           string `gorm:"not null" json:"pnr" binding:"required"`
+	BirthDate     string `gorm:"not null" json:"birth_date"`
+	WalletAddress string `gorm:"size:42;not null;unique" json:"wallet_address" binding:"required"`
 }
 
 type PublicWalletInfo struct {
 	FirstName     string `json:"first_name"`
 	LastName      string `json:"last_name"`
-	Orgnr         string `json:"orgnr"`
-	YearBorn      string `json:"year_born"`
+	Orgnr         int    `json:"orgnr"`
+	BirthDate     string `json:"birth_date"`
 	WalletAddress string `json:"wallet_address"`
 }
 
 func (wallet *Wallet) Save() (*Wallet, error) {
-	err := database.Database.Create(&wallet).Error
-	if err != nil {
+	if err := SanitizeWallet(wallet); err != nil {
 		return &Wallet{}, err
 	}
+
+	if err := database.Database.Create(&wallet).Error; err != nil {
+		return &Wallet{}, err
+	}
+
 	return wallet, nil
 }
 
 func FindWalletByOrgnr(orgnr string) ([]PublicWalletInfo, error) {
 	var wallets []Wallet
 	var publicWallets []PublicWalletInfo
-	err := database.Database.Where("orgnr=?", orgnr).Find(&wallets).Error
+	safeOrgnr := SanitizeString(orgnr)
+	err := database.Database.Where("orgnr=?", safeOrgnr).Find(&wallets).Error
 	if err != nil {
 		return []PublicWalletInfo{}, err
 	}
@@ -50,7 +55,8 @@ func FindWalletByOrgnr(orgnr string) ([]PublicWalletInfo, error) {
 func FindWalletByPnr(pnr string) ([]PublicWalletInfo, error) {
 	var wallets []Wallet
 	var publicWallets []PublicWalletInfo
-	err := database.Database.Where("pnr=?", pnr).Find(&wallets).Error
+	safePnr := SanitizeString(pnr)
+	err := database.Database.Where("pnr=?", safePnr).Find(&wallets).Error
 	if err != nil {
 		return []PublicWalletInfo{}, err
 	}
@@ -64,7 +70,8 @@ func FindWalletByPnr(pnr string) ([]PublicWalletInfo, error) {
 
 func FindWalletByWalletAddress(walletAddress string) (PublicWalletInfo, error) {
 	var wallet Wallet
-	err := database.Database.Where("wallet_address=?", walletAddress).Find(&wallet).Error
+	safeWalletAddress := SanitizeString(walletAddress)
+	err := database.Database.Where("wallet_address=?", safeWalletAddress).Find(&wallet).Error
 	if err != nil {
 		return PublicWalletInfo{}, err
 	}
@@ -97,7 +104,7 @@ func parseWalletToPublicInfo(wallet Wallet) PublicWalletInfo {
 		FirstName:     wallet.FirstName,
 		LastName:      wallet.LastName,
 		Orgnr:         wallet.Orgnr,
-		YearBorn:      wallet.YearBorn,
+		BirthDate:     wallet.BirthDate,
 		WalletAddress: wallet.WalletAddress,
 	}
 }
