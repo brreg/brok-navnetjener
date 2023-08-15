@@ -8,6 +8,13 @@ import (
 )
 
 func SanitizeString(input string) string {
+	/*
+		Do not allow any HTML tags.
+		When content is passed through this policy, all HTML is stripped away,
+		leaving only the plain text content.
+		Even safe HTML content will be stripped out.
+		This ensures that no potentially harmful content can be embedded within the sanitized text
+	*/
 	p := bluemonday.StrictPolicy()
 	return p.Sanitize(input)
 }

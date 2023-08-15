@@ -44,6 +44,7 @@ func GetWalletByPnr(context *gin.Context) {
 		return
 	}
 
+	// Only return wallet address
 	for _, wallet := range wallets {
 		response = append(response, PersonResponse{
 			WalletAddress: wallet.WalletAddress,
@@ -74,6 +75,11 @@ func CreateWallet(context *gin.Context) {
 	var newWallet model.Wallet
 
 	if err := context.ShouldBindJSON(&newWallet); err != nil {
+		// Check if the error is because of large request body
+		if err.Error() == "http: request body too large" {
+			context.JSON(http.StatusRequestEntityTooLarge, gin.H{"error": "Request body exceeds limit"})
+			return
+		}
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Could not parse body"})
 		return
 	}
@@ -89,6 +95,7 @@ func CreateWallet(context *gin.Context) {
 	context.JSON(http.StatusCreated, gin.H{"wallet": savedWallet})
 }
 
+// Should be removed in the future
 func GetAllWallets(context *gin.Context) {
 	wallets, err := model.FindAllWallets()
 

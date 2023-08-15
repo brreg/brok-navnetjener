@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -125,4 +126,31 @@ func TestShouldFindAllShareholderForCompany(t *testing.T) {
 		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
 	}
 
+}
+
+func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
+	router := setup()
+
+	// Generate a large payload using fields in model.Wallet
+	largeName := strings.Repeat("a", 1024*2) // 2KiB
+
+	wallet := map[string]interface{}{
+		"first_name":     largeName,
+		"last_name":      "Doe",
+		"orgnr":          12345678,
+		"pnr":            "200501021234",
+		"wallet_address": "0x1234567890abcdef",
+	}
+	payloadBytes, err := json.Marshal(wallet)
+	if err != nil {
+		t.Fatalf("Failed to marshal wallet: %v", err)
+	}
+
+	req, _ := http.NewRequest(http.MethodPost, "/wallet", bytes.NewReader(payloadBytes))
+	resp := httptest.NewRecorder()
+
+	router.ServeHTTP(resp, req)
+
+	// Since Gin has a 1KiB request body limit, it should return a 413 Payload Too Large.
+	assert.Equal(t, http.StatusRequestEntityTooLarge, resp.Code)
 }

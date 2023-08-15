@@ -25,10 +25,14 @@ type PublicWalletInfo struct {
 }
 
 func (wallet *Wallet) Save() (*Wallet, error) {
-	err := database.Database.Create(&wallet).Error
-	if err != nil {
+	if err := SanitizeWallet(wallet); err != nil {
 		return &Wallet{}, err
 	}
+
+	if err := database.Database.Create(&wallet).Error; err != nil {
+		return &Wallet{}, err
+	}
+
 	return wallet, nil
 }
 
