@@ -1,4 +1,4 @@
-FROM golang:1.20
+FROM golang:1.20 as builder
 
 WORKDIR /usr/local/go/src/brok/navnetjener/
 
@@ -14,6 +14,8 @@ COPY server.go .
 RUN ls
 RUN go build -v -o /navnetjener
 
-ENV DOCKER=true
+FROM ubi9-micro
+
+COPY --from=builder /navnetjener /navnetjener
 
 CMD ["/navnetjener"]
