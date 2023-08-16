@@ -14,7 +14,7 @@ COPY server.go .
 RUN ls
 RUN go build -v -o /navnetjener
 
-FROM ubi9-micro
+FROM registry.access.redhat.com/ubi9/ubi-micro
 
 COPY --from=builder /navnetjener /navnetjener
 
