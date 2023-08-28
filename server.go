@@ -64,6 +64,8 @@ func routerConfig() *gin.Engine {
 
 	router.GET("/company/:orgnr", api.GetWalletByOrgnr)
 
+	router.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
+
 	return router
 }
 

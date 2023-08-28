@@ -16,6 +16,12 @@ type Wallet struct {
 	WalletAddress string `gorm:"size:42;not null;unique" json:"wallet_address" binding:"required"`
 }
 
+type Person struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	BirthDate string `json:"birth_date"`
+}
+
 type PublicWalletInfo struct {
 	FirstName     string `json:"first_name"`
 	LastName      string `json:"last_name"`
@@ -77,6 +83,24 @@ func FindWalletByWalletAddress(walletAddress string) (PublicWalletInfo, error) {
 	}
 
 	return parseWalletToPublicInfo(wallet), nil
+}
+
+func findPersonByWalletAddress(walletAddress string) (Person, error) {
+	var wallet Wallet
+	var person Person
+	safeWalletAddress := SanitizeString(walletAddress)
+	err := database.Database.Where("wallet_address=?", safeWalletAddress).Find(&wallet).Error
+	if err != nil {
+		return Person{}, err
+	}
+
+	person = Person{
+		FirstName: wallet.FirstName,
+		LastName:  wallet.LastName,
+		BirthDate: wallet.BirthDate,
+	}
+
+	return person, nil
 }
 
 func FindAllWallets() ([]PublicWalletInfo, error) {
