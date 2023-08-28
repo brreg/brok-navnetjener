@@ -11,9 +11,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
+	// Setup Logrus
+	logrus.SetLevel(logrus.DebugLevel)
+
 	loadEnv()
 	loadDatabase()
 	serveApplication()
@@ -63,6 +67,8 @@ func routerConfig() *gin.Engine {
 	router.GET("/person/:pnr", api.GetWalletByPnr)
 
 	router.GET("/company/:orgnr", api.GetWalletByOrgnr)
+
+	router.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
 
 	return router
 }
