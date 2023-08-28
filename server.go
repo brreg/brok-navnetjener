@@ -37,7 +37,12 @@ func loadDatabase() {
 
 func serveApplication() {
 	router := routerConfig()
-	port := os.Getenv("SERVER_PORT")
+	port, exists := os.LookupEnv("SERVER_PORT")
+	if !exists {
+		logrus.Warn("SERVER_PORT environment variable not set, using default port 8080")
+		port = "8080"
+	}
+
 	router.Run(":" + port)
 	fmt.Printf("Server running at port %s", port)
 }
@@ -60,15 +65,20 @@ func routerConfig() *gin.Engine {
 	*/
 	router.Use(MaxBodySize(1024)) // 1 KiB limit
 
-	router.GET("/wallet", api.GetAllWallets)
-	router.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
-	router.POST("/wallet", api.CreateWallet)
+	// Group API endpoints in /v1
+	v1 := router.Group("/v1")
 
-	router.GET("/person/:pnr", api.GetWalletByPnr)
+	v1.GET("/wallet", api.GetAllWallets)
+	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
+	v1.POST("/wallet", api.CreateWallet)
 
-	router.GET("/company/:orgnr", api.GetWalletByOrgnr)
+	v1.GET("/person/:pnr", api.GetWalletByPnr)
 
-	router.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
+	v1.GET("/company/:orgnr", api.GetWalletByOrgnr)
+
+	v1.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
+	v1.GET("/foretak/", api.GetForetak)
+	v1.GET("/foretak", api.GetForetak)
 
 	return router
 }
