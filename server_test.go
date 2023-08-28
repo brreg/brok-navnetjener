@@ -26,11 +26,13 @@ func setup() *gin.Engine {
 	return routerConfig()
 }
 
+var API_VERSION string = "/v1"
+
 func TestWalletRoute(t *testing.T) {
 	router := setup()
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/wallet", nil)
+	req, _ := http.NewRequest("GET", API_VERSION+"/wallet", nil)
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -44,7 +46,7 @@ func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 	testWallet.Save()
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/wallet/"+testWallet.WalletAddress, nil)
+	req, _ := http.NewRequest("GET", API_VERSION+"/wallet/"+testWallet.WalletAddress, nil)
 	router.ServeHTTP(w, req)
 
 	var receivedWallet model.PublicWalletInfo
@@ -60,7 +62,7 @@ func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 	testWallet := CreateTestWallet()
 
 	json, _ := json.Marshal(testWallet)
-	req, _ := http.NewRequest("POST", "/wallet", bytes.NewReader(json))
+	req, _ := http.NewRequest("POST", API_VERSION+"/wallet", bytes.NewReader(json))
 	req.Header.Set("Content-Type", "application/json")
 
 	w := httptest.NewRecorder()
@@ -84,7 +86,7 @@ func TestShouldFindAllFiveWalletsBelongingToPerson(t *testing.T) {
 	}
 
 	// Test
-	req, _ := http.NewRequest("GET", "/person/"+testWallets[0].Pnr, nil)
+	req, _ := http.NewRequest("GET", API_VERSION+"/person/"+testWallets[0].Pnr, nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -114,7 +116,7 @@ func TestShouldFindAllShareholderForCompany(t *testing.T) {
 	}
 
 	// Test
-	req, _ := http.NewRequest("GET", "/company/"+fmt.Sprint(testWallets[0].Orgnr), nil)
+	req, _ := http.NewRequest("GET", API_VERSION+"/company/"+fmt.Sprint(testWallets[0].Orgnr), nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -150,7 +152,7 @@ func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 		t.Fatalf("Failed to marshal wallet: %v", err)
 	}
 
-	req, _ := http.NewRequest(http.MethodPost, "/wallet", bytes.NewReader(payloadBytes))
+	req, _ := http.NewRequest(http.MethodPost, API_VERSION+"/wallet", bytes.NewReader(payloadBytes))
 	resp := httptest.NewRecorder()
 
 	router.ServeHTTP(resp, req)

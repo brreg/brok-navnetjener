@@ -75,3 +75,43 @@ func FindCaptableByOrgnrFromTheGraph(orgnr string) (CapTable, error) {
 
 	return response.Data.CapTables[0], nil
 }
+
+// FindForetakFromTheGraph returns 25 foretak from TheGraph
+// user can use the queryparameter "page" to paginate
+func FindForetakFromTheGraph(page int) ([]CapTable, error) {
+	query := `
+	query getCapTables($skip: Int!) {
+		capTables(first: 25, skip: $skip) {
+			id
+			name
+			symbol
+			partitions
+			status
+			registry {
+				id
+			}
+			tokenHolders {
+				address
+				balances {
+					amount
+					partition
+				}
+			}
+			totalSupply
+			owner
+			minter
+			controllers
+			orgnr
+		}
+	}
+	`
+
+	var response GraphQLResponse
+
+	err := utils.ExecuteGraphQLQuery(query, map[string]interface{}{"skip": page * 25}, &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Data.CapTables, nil
+}
