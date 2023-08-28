@@ -11,9 +11,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
+	// Setup Logrus
+	logrus.SetLevel(logrus.DebugLevel)
+
 	loadEnv()
 	loadDatabase()
 	serveApplication()
