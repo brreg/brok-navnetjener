@@ -2,15 +2,19 @@ package main
 
 import (
 	"brok/navnetjener/model"
-	"brok/navnetjener/utils"
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	r "math/rand"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/bxcodec/faker/v3"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,7 +39,7 @@ func TestWalletRoute(t *testing.T) {
 func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 	router := setup()
 
-	testWallet := utils.CreateTestWallet()
+	testWallet := CreateTestWallet()
 
 	testWallet.Save()
 
@@ -53,7 +57,7 @@ func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 	router := setup()
 
-	testWallet := utils.CreateTestWallet()
+	testWallet := CreateTestWallet()
 
 	json, _ := json.Marshal(testWallet)
 	req, _ := http.NewRequest("POST", "/wallet", bytes.NewReader(json))
@@ -74,7 +78,7 @@ func TestShouldFindAllFiveWalletsBelongingToPerson(t *testing.T) {
 	// Setup
 	router := setup()
 
-	testWallets := utils.CreateFiveTestWalletsForOnePerson()
+	testWallets := CreateFiveTestWalletsForOnePerson()
 	for _, wallet := range testWallets {
 		wallet.Save()
 	}
@@ -104,7 +108,7 @@ func TestShouldFindAllShareholderForCompany(t *testing.T) {
 	// Setup
 	router := setup()
 
-	testWallets := utils.CreateSevenTestWalletsForOneCompany()
+	testWallets := CreateSevenTestWalletsForOneCompany()
 	for _, wallet := range testWallets {
 		wallet.Save()
 	}
@@ -153,4 +157,87 @@ func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 
 	// Since Gin has a 1KiB request body limit, it should return a 413 Payload Too Large.
 	assert.Equal(t, http.StatusRequestEntityTooLarge, resp.Code)
+}
+
+func CreateSevenTestWalletsForOneCompany() []model.Wallet {
+	orgnr := randomNumberInt(11111111, 99999999) // Use 8 digits orgnr for testing
+
+	var wallets []model.Wallet
+
+	for i := 0; i < 7; i++ {
+		dateBorn := randomNumber(1, 30)
+		mountBorn := randomNumber(1, 12)
+		yearBorn := randomNumber(68, 99)
+		birthDate := dateBorn + mountBorn + yearBorn
+
+		wallets = append(wallets, model.Wallet{
+			FirstName:     faker.FirstNameFemale(),
+			LastName:      faker.LastName(),
+			Orgnr:         orgnr,
+			Pnr:           birthDate + "00000",
+			BirthDate:     birthDate,
+			WalletAddress: randomWalletAddress(),
+		})
+	}
+
+	return wallets
+}
+
+func CreateFiveTestWalletsForOnePerson() []model.Wallet {
+	firstName := faker.FirstNameFemale()
+	lastName := faker.LastName()
+
+	dateBorn := randomNumber(0, 30)
+	mountBorn := randomNumber(1, 12)
+	yearBorn := randomNumber(68, 99)
+
+	birthDate := dateBorn + mountBorn + yearBorn
+
+	var wallets []model.Wallet
+
+	for i := 0; i < 5; i++ {
+		wallets = append(wallets, model.Wallet{
+			FirstName:     firstName,
+			LastName:      lastName,
+			Orgnr:         randomNumberInt(11111111, 99999999), // Use 8 digits orgnr for testing
+			Pnr:           birthDate + "00000",
+			BirthDate:     birthDate,
+			WalletAddress: randomWalletAddress(),
+		})
+	}
+
+	return wallets
+}
+
+func CreateTestWallet() model.Wallet {
+	dateBorn := randomNumber(0, 30)
+	mountBorn := randomNumber(1, 12)
+	yearBorn := randomNumber(68, 99)
+
+	birthDate := dateBorn + mountBorn + yearBorn
+
+	return model.Wallet{
+		FirstName:     faker.FirstNameFemale(),
+		LastName:      faker.LastName(),
+		Orgnr:         randomNumberInt(11111111, 99999999), // Use 8 digits orgnr for testing
+		Pnr:           birthDate + "00000",
+		BirthDate:     birthDate,
+		WalletAddress: randomWalletAddress(),
+	}
+}
+
+func randomNumber(min int, max int) string {
+	random := r.New(r.NewSource(time.Now().UnixNano()))
+	return fmt.Sprintf("%02d", random.Intn(max-min)+min)
+}
+
+func randomNumberInt(min int, max int) int {
+	random := r.New(r.NewSource(time.Now().UnixNano()))
+	return random.Intn(max-min) + min
+}
+
+func randomWalletAddress() string {
+	bytes := make([]byte, 20)
+	rand.Read(bytes)
+	return "0x" + hex.EncodeToString(bytes)
 }
