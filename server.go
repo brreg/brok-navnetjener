@@ -3,6 +3,7 @@ package main
 import (
 	"brok/navnetjener/api"
 	"brok/navnetjener/database"
+	"brok/navnetjener/model"
 	"log"
 	"net/http"
 	"os"
@@ -46,7 +47,11 @@ func loggerConfig() {
 
 func loadDatabase() {
 	database.Connect()
-	// database.Database.AutoMigrate(&model.Wallet{})
+	autoMigrate := os.Getenv("DB_AUTO_MIGRATE")
+	if autoMigrate == "true" {
+		logrus.Info("Auto migrating database")
+		database.Database.AutoMigrate(&model.Wallet{})
+	}
 }
 
 func serveApplication() {
