@@ -9,9 +9,10 @@ RUN go mod download && go mod verify
 COPY api ./api
 COPY database ./database
 COPY model ./model
+COPY utils ./utils
 COPY server.go .
 
-RUN ls
+RUN ls -R
 RUN go build -v -o /navnetjener
 
 FROM registry.access.redhat.com/ubi9/ubi-micro
