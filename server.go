@@ -4,7 +4,6 @@ import (
 	"brok/navnetjener/api"
 	"brok/navnetjener/database"
 	"brok/navnetjener/model"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,11 +14,12 @@ import (
 )
 
 func main() {
-	// Setup Logrus
-	logrus.SetLevel(logrus.DebugLevel)
-
 	loadEnv()
+
+	loggerConfig()
+
 	loadDatabase()
+
 	serveApplication()
 }
 
@@ -30,9 +30,28 @@ func loadEnv() {
 	}
 }
 
+func loggerConfig() {
+	logLevel := os.Getenv("LOG_LEVEL")
+
+	switch logLevel {
+	case "debug":
+		logrus.SetLevel(logrus.DebugLevel)
+	case "info":
+		logrus.SetLevel(logrus.InfoLevel)
+	case "warn":
+		logrus.SetLevel(logrus.WarnLevel)
+	default:
+		logrus.SetLevel(logrus.InfoLevel)
+	}
+}
+
 func loadDatabase() {
 	database.Connect()
-	database.Database.AutoMigrate(&model.Wallet{})
+	autoMigrate := os.Getenv("DB_AUTO_MIGRATE")
+	if autoMigrate == "true" {
+		logrus.Info("Auto migrating database")
+		database.Database.AutoMigrate(&model.Wallet{})
+	}
 }
 
 func serveApplication() {
@@ -44,10 +63,24 @@ func serveApplication() {
 	}
 
 	router.Run(":" + port)
-	fmt.Printf("Server running at port %s", port)
 }
 
 func routerConfig() *gin.Engine {
+
+	env, exists := os.LookupEnv("ENVIRONMENT")
+	if !exists {
+		logrus.Warn("ENVIRONMENT environment variable not set, using default value: dev")
+		env = "development"
+	}
+
+	if env == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	if env == "development" {
+		gin.SetMode(gin.DebugMode)
+	}
+
 	router := gin.Default()
 
 	/*
@@ -63,7 +96,7 @@ func routerConfig() *gin.Engine {
 
 		Total: 747, rounding up to 1024 to have some wiggle room
 	*/
-	router.Use(MaxBodySize(1024)) // 1 KiB limit
+	router.Use(maxBodySize(1024)) // 1 KiB limit
 
 	// Group API endpoints in /v1
 	v1 := router.Group("/v1")
@@ -72,9 +105,7 @@ func routerConfig() *gin.Engine {
 	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
 	v1.POST("/wallet", api.CreateWallet)
 
-	v1.GET("/person/:pnr", api.GetWalletByPnr)
-
-	v1.GET("/company/:orgnr", api.GetWalletByOrgnr)
+	v1.GET("/person/:pnr", api.GetAllForetakForPerson)
 
 	v1.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
 	v1.GET("/foretak/", api.GetForetak)
@@ -83,7 +114,7 @@ func routerConfig() *gin.Engine {
 	return router
 }
 
-func MaxBodySize(limit int64) gin.HandlerFunc {
+func maxBodySize(limit int64) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, limit)
 		c.Next()

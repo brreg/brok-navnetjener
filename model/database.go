@@ -3,6 +3,7 @@ package model
 import (
 	"brok/navnetjener/database"
 
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -32,10 +33,12 @@ type PublicWalletInfo struct {
 
 func (wallet *Wallet) Save() (*Wallet, error) {
 	if err := SanitizeWallet(wallet); err != nil {
+		logrus.Warn("error sanitizing wallet: ", err)
 		return &Wallet{}, err
 	}
 
 	if err := database.Database.Create(&wallet).Error; err != nil {
+		logrus.Warn("error creating wallet in the database: ", err)
 		return &Wallet{}, err
 	}
 
@@ -48,6 +51,7 @@ func FindWalletByOrgnr(orgnr string) ([]PublicWalletInfo, error) {
 	safeOrgnr := SanitizeString(orgnr)
 	err := database.Database.Where("orgnr=?", safeOrgnr).Find(&wallets).Error
 	if err != nil {
+		logrus.Info("could not find wallet in db with orgnr: ", orgnr)
 		return []PublicWalletInfo{}, err
 	}
 
@@ -55,6 +59,7 @@ func FindWalletByOrgnr(orgnr string) ([]PublicWalletInfo, error) {
 		publicWallets = append(publicWallets, parseWalletToPublicInfo(wallet))
 	}
 
+	logrus.Debug("found wallets in db with orgnr: ", orgnr, " wallets: ", publicWallets)
 	return publicWallets, nil
 }
 
@@ -67,10 +72,17 @@ func FindWalletByPnr(pnr string) ([]PublicWalletInfo, error) {
 		return []PublicWalletInfo{}, err
 	}
 
+	if len(wallets) == 0 {
+		logrus.Info("could not find person in db with pnr: ", pnr)
+		// return empty with a new error if no person is found
+		return []PublicWalletInfo{}, gorm.ErrRecordNotFound
+	}
+
 	for _, wallet := range wallets {
 		publicWallets = append(publicWallets, parseWalletToPublicInfo(wallet))
 	}
 
+	logrus.Debug("found wallets in db with pnr: ", pnr, " wallets: ", publicWallets)
 	return publicWallets, nil
 }
 
@@ -79,10 +91,13 @@ func FindWalletByWalletAddress(walletAddress string) (PublicWalletInfo, error) {
 	safeWalletAddress := SanitizeString(walletAddress)
 	err := database.Database.Where("wallet_address=?", safeWalletAddress).Find(&wallet).Error
 	if err != nil {
+		logrus.Info("could not find person in db with wallet_address: ", walletAddress)
 		return PublicWalletInfo{}, err
 	}
+	publicWallet := parseWalletToPublicInfo(wallet)
 
-	return parseWalletToPublicInfo(wallet), nil
+	logrus.Debug("found wallets in db with walletAddress: ", walletAddress, " wallets: ", publicWallet)
+	return publicWallet, nil
 }
 
 func findPersonByWalletAddress(walletAddress string) (Person, error) {
@@ -91,6 +106,7 @@ func findPersonByWalletAddress(walletAddress string) (Person, error) {
 	safeWalletAddress := SanitizeString(walletAddress)
 	err := database.Database.Where("wallet_address=?", safeWalletAddress).Find(&wallet).Error
 	if err != nil {
+		logrus.Info("could not find person in db with wallet_address: ", walletAddress)
 		return Person{}, err
 	}
 
@@ -100,6 +116,7 @@ func findPersonByWalletAddress(walletAddress string) (Person, error) {
 		BirthDate: wallet.BirthDate,
 	}
 
+	logrus.Debug("found person in db with walletAddress: ", walletAddress, " person: ", person)
 	return person, nil
 }
 
@@ -109,6 +126,7 @@ func FindAllWallets() ([]PublicWalletInfo, error) {
 	err := database.Database.Find(&wallets).Error
 
 	if err != nil {
+		logrus.Warn("could not find any wallets in db")
 		return []PublicWalletInfo{}, err
 	}
 
@@ -116,6 +134,7 @@ func FindAllWallets() ([]PublicWalletInfo, error) {
 		publicWallets = append(publicWallets, parseWalletToPublicInfo(wallet))
 	}
 
+	logrus.Debug("found wallets in db: ", publicWallets)
 	return publicWallets, nil
 }
 

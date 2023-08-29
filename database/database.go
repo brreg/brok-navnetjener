@@ -45,12 +45,11 @@ func Connect() {
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Europe/Oslo", host, username, password, databaseName, port, sslmode)
-	logrus.Debug(dsn)
 	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		panic(err)
 	} else {
-		fmt.Println("Successfully connected to the database")
+		logrus.Info("Successfully connected to the database")
 	}
 }

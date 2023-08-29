@@ -12,48 +12,6 @@ type PersonResponse struct {
 	WalletAddress string `json:"wallet_address"`
 }
 
-func GetWalletByOrgnr(context *gin.Context) {
-	orgnr := context.Param("orgnr")
-
-	wallets, err := model.FindWalletByOrgnr(orgnr)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if len(wallets) == 0 {
-		context.JSON(http.StatusNotFound, gin.H{"error": "no wallet found"})
-		return
-	}
-
-	context.JSON(http.StatusOK, wallets)
-}
-
-func GetWalletByPnr(context *gin.Context) {
-	pnr := context.Param("pnr")
-	var response []PersonResponse
-
-	wallets, err := model.FindWalletByPnr(pnr)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if len(wallets) == 0 {
-		context.JSON(http.StatusNotFound, gin.H{"error": "no wallet found"})
-		return
-	}
-
-	// Only return wallet address
-	for _, wallet := range wallets {
-		response = append(response, PersonResponse{
-			WalletAddress: wallet.WalletAddress,
-		})
-	}
-
-	context.JSON(http.StatusOK, response)
-}
-
 func GetWalletByWalletAddress(context *gin.Context) {
 	walletAddress := context.Param("walletAddress")
 

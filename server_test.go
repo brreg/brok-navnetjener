@@ -76,63 +76,63 @@ func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 
 }
 
-func TestShouldFindAllFiveWalletsBelongingToPerson(t *testing.T) {
-	// Setup
-	router := setup()
+// func TestShouldFindAllWalletsBelongingToPerson(t *testing.T) {
+// 	// Setup
+// 	router := setup()
 
-	testWallets := CreateFiveTestWalletsForOnePerson()
-	for _, wallet := range testWallets {
-		wallet.Save()
-	}
+// 	// testWallets := CreateFiveTestWalletsForOnePerson()
+// 	// for _, wallet := range testWallets {
+// 	// 	wallet.Save()
+// 	// }
 
-	// Test
-	req, _ := http.NewRequest("GET", API_VERSION+"/person/"+testWallets[0].Pnr, nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
+// 	// Test
+// 	req, _ := http.NewRequest("GET", API_VERSION+"/person/"+testWallets[0].Pnr, nil)
+// 	w := httptest.NewRecorder()
+// 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+// 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var receivedWallet []struct {
-		WalletAddress string `json:"wallet_address"`
-	}
-	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
-		panic(err.Error())
-	}
-	assert.Equal(t, len(receivedWallet), 5)
+// 	var receivedWallet []struct {
+// 		WalletAddress string `json:"wallet_address"`
+// 	}
+// 	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
+// 		panic(err.Error())
+// 	}
+// 	assert.Equal(t, len(receivedWallet), 5)
 
-	for i, wallet := range receivedWallet {
-		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
-	}
+// 	for i, wallet := range receivedWallet {
+// 		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
+// 	}
 
-}
+// }
 
-func TestShouldFindAllShareholderForCompany(t *testing.T) {
-	// Setup
-	router := setup()
+// func TestShouldFindAllShareholderForCompany(t *testing.T) {
+// 	// Setup
+// 	router := setup()
 
-	testWallets := CreateSevenTestWalletsForOneCompany()
-	for _, wallet := range testWallets {
-		wallet.Save()
-	}
+// 	testWallets := CreateSevenTestWalletsForOneCompany()
+// 	for _, wallet := range testWallets {
+// 		wallet.Save()
+// 	}
 
-	// Test
-	req, _ := http.NewRequest("GET", API_VERSION+"/company/"+fmt.Sprint(testWallets[0].Orgnr), nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
+// 	// Test
+// 	req, _ := http.NewRequest("GET", API_VERSION+"/company/"+fmt.Sprint(testWallets[0].Orgnr), nil)
+// 	w := httptest.NewRecorder()
+// 	router.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+// 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var receivedWallet []model.PublicWalletInfo
-	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
-		panic(err.Error())
-	}
-	assert.Equal(t, len(receivedWallet), 7)
+// 	var receivedWallet []model.PublicWalletInfo
+// 	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
+// 		panic(err.Error())
+// 	}
+// 	assert.Equal(t, len(receivedWallet), 7)
 
-	for i, wallet := range receivedWallet {
-		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
-	}
+// 	for i, wallet := range receivedWallet {
+// 		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
+// 	}
 
-}
+// }
 
 func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 	router := setup()
