@@ -1,4 +1,10 @@
-FROM golang:1.20 as builder
+FROM registry.access.redhat.com/ubi9 as builder
+
+# Download Go and install it to /usr/local/go
+RUN curl https://dl.google.com/go/go1.20.7.linux-amd64.tar.gz --output go1.21.0.linux-amd64.tar.gz
+RUN rm -rf /usr/local/go && tar -C /usr/local -xzf go1.21.0.linux-amd64.tar.gz
+ENV PATH=$PATH:/usr/local/go/bin
+RUN go version
 
 WORKDIR /usr/local/go/src/brok/navnetjener/
 
@@ -15,7 +21,7 @@ COPY server.go .
 RUN ls -R
 RUN go build -v -o /navnetjener
 
-FROM registry.access.redhat.com/ubi9/ubi-micro
+FROM registry.access.redhat.com/ubi9-minimal
 
 COPY --from=builder /navnetjener /navnetjener
 
