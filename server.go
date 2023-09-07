@@ -101,14 +101,12 @@ func routerConfig() *gin.Engine {
 	// Group API endpoints in /v1
 	v1 := router.Group("/v1")
 
-	v1.GET("/wallet", api.GetAllWallets)
 	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
 	v1.POST("/wallet", api.CreateWallet)
 
 	v1.GET("/person/:pnr", api.GetAllForetakForPerson)
 
 	v1.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
-	v1.GET("/foretak/", api.GetForetak)
 	v1.GET("/foretak", api.GetForetak)
 
 	return router

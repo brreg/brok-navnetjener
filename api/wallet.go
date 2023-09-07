@@ -16,12 +16,7 @@ func GetWalletByWalletAddress(context *gin.Context) {
 	walletAddress := context.Param("walletAddress")
 
 	wallet, err := model.FindWalletByWalletAddress(walletAddress)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if wallet == (model.PublicWalletInfo{}) {
+	if wallet == (model.PublicWalletInfo{}) || err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "no wallet with address " + walletAddress})
 		return
 	}
@@ -42,7 +37,9 @@ func CreateWallet(context *gin.Context) {
 		return
 	}
 
-	newWallet.BirthDate = newWallet.Pnr[:6]
+	if newWallet.OwnerPersonPnr != "" {
+		newWallet.OwnerPersonBirthDate = newWallet.OwnerPersonPnr[:6]
+	}
 
 	savedWallet, err := newWallet.Save()
 	if err != nil {
@@ -51,16 +48,4 @@ func CreateWallet(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusCreated, gin.H{"wallet": savedWallet})
-}
-
-// Should be removed in the future
-func GetAllWallets(context *gin.Context) {
-	wallets, err := model.FindAllWallets()
-
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	context.JSON(http.StatusOK, wallets)
 }

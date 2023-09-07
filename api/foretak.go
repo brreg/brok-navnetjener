@@ -11,16 +11,19 @@ import (
 func GetForetakByOrgnr(context *gin.Context) {
 	orgnr := context.Param("orgnr")
 
-	capTable, err := model.FindCaptableByOrgnr(orgnr)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if len(orgnr) != 9 {
+		context.JSON(http.StatusBadRequest, gin.H{"error": orgnr + " must be 9 valid digits"})
 		return
 	}
 
-	// check if foretak is empty
+	if _, err := strconv.Atoi(orgnr); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": orgnr + " must be 9 valid digits"})
+		return
+	}
 
-	if capTable.Name == "" {
-		context.JSON(http.StatusNotFound, gin.H{"error": "finner ikke Aksjebok for orgnr " + orgnr})
+	capTable, err := model.FindCaptableByOrgnr(orgnr)
+	if capTable.Name == "" || err != nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "finner ikke aksjebok for orgnr " + orgnr})
 		return
 	}
 
@@ -49,7 +52,7 @@ func GetForetak(context *gin.Context) {
 
 	capTables, err := model.FindForetak(safePageInt)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.JSON(http.StatusNotFound, gin.H{"error": "finner ikke noen aksjebøker"})
 		return
 	}
 
