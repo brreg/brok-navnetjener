@@ -3,6 +3,8 @@ package model
 import (
 	"brok/navnetjener/utils"
 	"fmt"
+
+	"github.com/sirupsen/logrus"
 )
 
 // FindAllCapTablesForPerson returns all captables for a person
@@ -16,8 +18,10 @@ func FindAllCapTablesForPerson(pnr string) ([]CapTable, error) {
 
 	var orgnrList []string
 	for _, wallet := range wallets {
-		orgnrList = append(orgnrList, fmt.Sprint(wallet.Orgnr))
+		orgnrList = append(orgnrList, fmt.Sprint(wallet.CapTableOrgnr))
 	}
+
+	logrus.Debug("found orgnrList in db with pnr: ", pnr[0:6], "*****", " orgnrList: ", orgnrList)
 
 	captables, err := FindAllCaptableByOrgnrListFromTheGraph(orgnrList)
 	if err != nil {
@@ -32,22 +36,6 @@ func FindAllCapTablesForPerson(pnr string) ([]CapTable, error) {
 	}
 
 	return captables, nil
-
-	// var captables []CapTable
-	// for _, wallet := range wallets {
-	// 	// TODO optimize this
-	// 	captable, err := FindAllCaptableByOrgnrListFromTheGraph(fmt.Sprint(wallet.Orgnr))
-	// 	if err != nil {
-	// 		return []CapTable{}, err
-	// 	}
-	// 	captable, err = mergeDataFromTheGraphAndDatabase(captable)
-	// 	if err != nil {
-	// 		return []CapTable{}, err
-	// 	}
-	// 	captables = append(captables, captable)
-	// }
-
-	// return captables, nil
 }
 
 // findCaptableByOrgnr combines data from TheGraph and the database
@@ -91,13 +79,14 @@ func mergeDataFromTheGraphAndDatabase(captable CapTable) (CapTable, error) {
 	captable.TotalSupply = utils.ToDecimal(captable.TotalSupply)
 
 	for i, tokenHolder := range captable.TokenHolders {
-		person, err := findPersonByWalletAddress(tokenHolder.Address)
 		tokenHolder = convertTokenHolderWeiToDecimals(tokenHolder)
+		wallet, err := FindWalletByWalletAddress(tokenHolder.Address)
 		if err != nil {
+			logrus.Error(err)
 			return CapTable{}, err
 		}
 
-		captable.TokenHolders[i].Person = person
+		captable.TokenHolders[i].Owner = wallet.Owner
 	}
 
 	return captable, nil

@@ -1,6 +1,10 @@
 package model
 
-import "brok/navnetjener/utils"
+import (
+	"brok/navnetjener/utils"
+
+	"github.com/sirupsen/logrus"
+)
 
 type GraphQLResponse struct {
 	Data struct {
@@ -23,7 +27,7 @@ type CapTable struct {
 type TokenHolder struct {
 	Address  string    `json:"address"`
 	Balances []Balance `json:"balances"`
-	Person   Person    `json:"person"`
+	Owner    Owner     `json:"owner"`
 }
 
 type Balance struct {
@@ -105,6 +109,7 @@ func FindCaptableByOrgnrFromTheGraph(orgnr string) (CapTable, error) {
 
 	err := utils.ExecuteGraphQLQuery(query, map[string]interface{}{"orgnr": orgnr}, &response)
 	if err != nil {
+		logrus.Error(err)
 		return CapTable{}, err
 	}
 
