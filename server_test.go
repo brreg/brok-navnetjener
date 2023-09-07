@@ -28,16 +28,6 @@ func setup() *gin.Engine {
 
 var API_VERSION string = "/v1"
 
-func TestWalletRoute(t *testing.T) {
-	router := setup()
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", API_VERSION+"/wallet", nil)
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
 func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 	router := setup()
 
@@ -76,63 +66,50 @@ func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 
 }
 
-// func TestShouldFindAllWalletsBelongingToPerson(t *testing.T) {
-// 	// Setup
-// 	router := setup()
+func TestApiShouldFindAllCapTablesBelongingToPerson(t *testing.T) {
+	// Setup
+	router := setup()
 
-// 	// testWallets := CreateFiveTestWalletsForOnePerson()
-// 	// for _, wallet := range testWallets {
-// 	// 	wallet.Save()
-// 	// }
+	// Test
+	req, _ := http.NewRequest("GET", API_VERSION+"/person/21058000000", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
 
-// 	// Test
-// 	req, _ := http.NewRequest("GET", API_VERSION+"/person/"+testWallets[0].Pnr, nil)
-// 	w := httptest.NewRecorder()
-// 	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
 
-// 	assert.Equal(t, http.StatusOK, w.Code)
+	var receivedDataFromApi []model.CapTable
+	if err := json.Unmarshal(w.Body.Bytes(), &receivedDataFromApi); err != nil {
+		panic(err.Error())
+	}
+	assert.Equal(t, 1, len(receivedDataFromApi))
 
-// 	var receivedWallet []struct {
-// 		WalletAddress string `json:"wallet_address"`
-// 	}
-// 	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
-// 		panic(err.Error())
-// 	}
-// 	assert.Equal(t, len(receivedWallet), 5)
+	assert.Equal(t, "Ryddig Bobil AS", receivedDataFromApi[0].Name)
+}
 
-// 	for i, wallet := range receivedWallet {
-// 		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
-// 	}
+func TestApiShouldGiveAllShareholdersForCompany(t *testing.T) {
+	// Setup
+	router := setup()
 
-// }
+	// Test
+	req, _ := http.NewRequest("GET", API_VERSION+"/foretak/815493000", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
 
-// func TestShouldFindAllShareholderForCompany(t *testing.T) {
-// 	// Setup
-// 	router := setup()
+	assert.Equal(t, http.StatusOK, w.Code)
 
-// 	testWallets := CreateSevenTestWalletsForOneCompany()
-// 	for _, wallet := range testWallets {
-// 		wallet.Save()
-// 	}
+	var receivedDataFromApi model.CapTable
+	if err := json.Unmarshal(w.Body.Bytes(), &receivedDataFromApi); err != nil {
+		panic(err.Error())
+	}
 
-// 	// Test
-// 	req, _ := http.NewRequest("GET", API_VERSION+"/company/"+fmt.Sprint(testWallets[0].Orgnr), nil)
-// 	w := httptest.NewRecorder()
-// 	router.ServeHTTP(w, req)
+	assert.Equal(t, len(receivedDataFromApi.TokenHolders), 6)
 
-// 	assert.Equal(t, http.StatusOK, w.Code)
+	for _, shareholder := range receivedDataFromApi.TokenHolders {
+		owner, _ := model.FindWalletByWalletAddress(shareholder.Address)
+		assert.Equal(t, shareholder.Owner, owner.Owner)
+	}
 
-// 	var receivedWallet []model.PublicWalletInfo
-// 	if err := json.Unmarshal(w.Body.Bytes(), &receivedWallet); err != nil {
-// 		panic(err.Error())
-// 	}
-// 	assert.Equal(t, len(receivedWallet), 7)
-
-// 	for i, wallet := range receivedWallet {
-// 		assert.Equal(t, testWallets[i].WalletAddress, wallet.WalletAddress)
-// 	}
-
-// }
+}
 
 func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 	router := setup()
@@ -141,11 +118,11 @@ func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 	largeName := strings.Repeat("a", 1024*2) // 2KiB
 
 	wallet := map[string]interface{}{
-		"first_name":     largeName,
-		"last_name":      "Doe",
-		"orgnr":          12345678,
-		"pnr":            "200501021234",
-		"wallet_address": "0x1234567890abcdef",
+		"owner_person_first_name": largeName,
+		"owner_person_last_name":  "Doe",
+		"cap_table_orgnr":         12345678,
+		"owner_person_pnr":        "200501021234",
+		"wallet_address":          "0x1234567890abcdef",
 	}
 	payloadBytes, err := json.Marshal(wallet)
 	if err != nil {
@@ -161,56 +138,6 @@ func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 	assert.Equal(t, http.StatusRequestEntityTooLarge, resp.Code)
 }
 
-func CreateSevenTestWalletsForOneCompany() []model.Wallet {
-	orgnr := randomNumberInt(11111111, 99999999) // Use 8 digits orgnr for testing
-
-	var wallets []model.Wallet
-
-	for i := 0; i < 7; i++ {
-		dateBorn := randomNumber(1, 30)
-		mountBorn := randomNumber(1, 12)
-		yearBorn := randomNumber(68, 99)
-		birthDate := dateBorn + mountBorn + yearBorn
-
-		wallets = append(wallets, model.Wallet{
-			FirstName:     faker.FirstNameFemale(),
-			LastName:      faker.LastName(),
-			Orgnr:         orgnr,
-			Pnr:           birthDate + "00000",
-			BirthDate:     birthDate,
-			WalletAddress: randomWalletAddress(),
-		})
-	}
-
-	return wallets
-}
-
-func CreateFiveTestWalletsForOnePerson() []model.Wallet {
-	firstName := faker.FirstNameFemale()
-	lastName := faker.LastName()
-
-	dateBorn := randomNumber(0, 30)
-	mountBorn := randomNumber(1, 12)
-	yearBorn := randomNumber(68, 99)
-
-	birthDate := dateBorn + mountBorn + yearBorn
-
-	var wallets []model.Wallet
-
-	for i := 0; i < 5; i++ {
-		wallets = append(wallets, model.Wallet{
-			FirstName:     firstName,
-			LastName:      lastName,
-			Orgnr:         randomNumberInt(11111111, 99999999), // Use 8 digits orgnr for testing
-			Pnr:           birthDate + "00000",
-			BirthDate:     birthDate,
-			WalletAddress: randomWalletAddress(),
-		})
-	}
-
-	return wallets
-}
-
 func CreateTestWallet() model.Wallet {
 	dateBorn := randomNumber(0, 30)
 	mountBorn := randomNumber(1, 12)
@@ -219,12 +146,12 @@ func CreateTestWallet() model.Wallet {
 	birthDate := dateBorn + mountBorn + yearBorn
 
 	return model.Wallet{
-		FirstName:     faker.FirstNameFemale(),
-		LastName:      faker.LastName(),
-		Orgnr:         randomNumberInt(11111111, 99999999), // Use 8 digits orgnr for testing
-		Pnr:           birthDate + "00000",
-		BirthDate:     birthDate,
-		WalletAddress: randomWalletAddress(),
+		OwnerPersonFirstName: faker.FirstNameFemale(),
+		OwnerPersonLastName:  faker.LastName(),
+		CapTableOrgnr:        randomOrgnr(),
+		OwnerPersonPnr:       birthDate + "00000",
+		OwnerPersonBirthDate: birthDate,
+		WalletAddress:        randomWalletAddress(),
 	}
 }
 
@@ -233,9 +160,8 @@ func randomNumber(min int, max int) string {
 	return fmt.Sprintf("%02d", random.Intn(max-min)+min)
 }
 
-func randomNumberInt(min int, max int) int {
-	random := r.New(r.NewSource(time.Now().UnixNano()))
-	return random.Intn(max-min) + min
+func randomOrgnr() string {
+	return randomNumber(111111111, 999999999)
 }
 
 func randomWalletAddress() string {
