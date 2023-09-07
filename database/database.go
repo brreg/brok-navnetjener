@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var Database *gorm.DB
@@ -45,7 +46,12 @@ func Connect() {
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Europe/Oslo", host, username, password, databaseName, port, sslmode)
-	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "navnetjener.",
+			SingularTable: false,
+		},
+	})
 
 	if err != nil {
 		panic(err)
