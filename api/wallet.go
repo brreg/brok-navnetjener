@@ -37,8 +37,8 @@ func CreateWallet(context *gin.Context) {
 		return
 	}
 
-	if newWallet.OwnerPersonPnr != "" {
-		newWallet.OwnerPersonBirthDate = newWallet.OwnerPersonPnr[:6]
+	if newWallet.OwnerPersonFnr != "" {
+		newWallet.OwnerPersonBirthDate = newWallet.OwnerPersonFnr[:6]
 	}
 
 	savedWallet, err := newWallet.Save()

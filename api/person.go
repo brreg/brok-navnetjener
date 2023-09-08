@@ -9,21 +9,21 @@ import (
 )
 
 // GetAllForetakForPerson returns all foretak for a person
-// user provides pnr as a parameter
+// user provides fnr as a parameter
 func GetAllForetakForPerson(context *gin.Context) {
-	pnr := context.Param("pnr")
+	fnr := context.Param("fnr")
 
-	if len(pnr) != 11 {
-		context.JSON(http.StatusBadRequest, gin.H{"error": pnr + " must be 11 valid digits"})
+	if len(fnr) != 11 {
+		context.JSON(http.StatusBadRequest, gin.H{"error": fnr + " must be 11 valid digits"})
 		return
 	}
 
-	if _, err := strconv.Atoi(pnr); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": pnr + " must be 11 valid digits"})
+	if _, err := strconv.Atoi(fnr); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": fnr + " must be 11 valid digits"})
 		return
 	}
 
-	capTables, err := model.FindAllCapTablesForPerson(pnr)
+	capTables, err := model.FindAllCapTablesForPerson(fnr)
 	if err != nil {
 		context.JSON(http.StatusNotFound, gin.H{"error": "finner ikke noen aksjebok for denne personen"})
 		return

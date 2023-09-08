@@ -8,10 +8,10 @@ import (
 )
 
 // FindAllCapTablesForPerson returns all captables for a person
-// first it looks in the database for a person matching the pnr
+// first it looks in the database for a person matching the fnr
 // then it uses orgnr from the database to find captables from TheGraph
-func FindAllCapTablesForPerson(pnr string) ([]CapTable, error) {
-	wallets, err := FindWalletByPnr(pnr)
+func FindAllCapTablesForPerson(fnr string) ([]CapTable, error) {
+	wallets, err := FindWalletByFnr(fnr)
 	if err != nil {
 		return []CapTable{}, err
 	}
@@ -21,7 +21,7 @@ func FindAllCapTablesForPerson(pnr string) ([]CapTable, error) {
 		orgnrList = append(orgnrList, fmt.Sprint(wallet.CapTableOrgnr))
 	}
 
-	logrus.Debug("found orgnrList in db with pnr: ", pnr[0:6], "*****", " orgnrList: ", orgnrList)
+	logrus.Debug("found orgnrList in db with fnr: ", fnr[0:6], "*****", " orgnrList: ", orgnrList)
 
 	captables, err := FindAllCaptableByOrgnrListFromTheGraph(orgnrList)
 	if err != nil {

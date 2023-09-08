@@ -89,7 +89,7 @@ func routerConfig() *gin.Engine {
 			257 (FirstName)
 			257 (LastName)
 			20 (Orgnr)
-			13 (Pnr)
+			13 (Fnr)
 			6 (BirthDate)
 			44 (WalletAddress)
 			150 (JSON overhead)
@@ -104,7 +104,7 @@ func routerConfig() *gin.Engine {
 	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
 	v1.POST("/wallet", api.CreateWallet)
 
-	v1.GET("/person/:pnr", api.GetAllForetakForPerson)
+	v1.GET("/person/:fnr", api.GetAllForetakForPerson)
 
 	v1.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
 	v1.GET("/foretak", api.GetForetak)

@@ -1,5 +1,16 @@
 package main
 
+/**
+
+!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----!
+|																																																|
+| 	Dette settet med tester fungerer KUN når en lokal database med navnet navnetjener kjører,		|
+| 	OG en lokal hardhat kjede med TheGraph som er startet fra https://github.com/brreg/brok!		|
+|																																																|
+|-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----!
+
+*/
+
 import (
 	"brok/navnetjener/model"
 	"bytes"
@@ -121,7 +132,7 @@ func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 		"owner_person_first_name": largeName,
 		"owner_person_last_name":  "Doe",
 		"cap_table_orgnr":         12345678,
-		"owner_person_pnr":        "200501021234",
+		"owner_person_fnr":        "200501021234",
 		"wallet_address":          "0x1234567890abcdef",
 	}
 	payloadBytes, err := json.Marshal(wallet)
@@ -149,7 +160,7 @@ func CreateTestWallet() model.Wallet {
 		OwnerPersonFirstName: faker.FirstNameFemale(),
 		OwnerPersonLastName:  faker.LastName(),
 		CapTableOrgnr:        randomOrgnr(),
-		OwnerPersonPnr:       birthDate + "00000",
+		OwnerPersonFnr:       birthDate + "00000",
 		OwnerPersonBirthDate: birthDate,
 		WalletAddress:        randomWalletAddress(),
 	}

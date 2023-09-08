@@ -24,7 +24,7 @@ CREATE TABLE navnetjener.wallets (
   "owner_person_first_name" varchar(255),
   "owner_person_last_name" varchar(255),
   "owner_person_birth_date" varchar(6),
-  "owner_person_pnr" varchar(11),
+  "owner_person_fnr" varchar(11),
   "owner_company_name" varchar(255),
   "owner_company_orgnr" varchar(9),
   "cap_table_orgnr" varchar(9) NOT NULL,
@@ -35,8 +35,8 @@ CREATE TABLE navnetjener.wallets (
 -- Create an index on the cap_table_orgnr column
 CREATE INDEX idx_cap_table_orgnr ON navnetjener.wallets (cap_table_orgnr);
 
--- Create an index on the owner_person_pnr column
-CREATE INDEX idx_owner_person_pnr ON navnetjener.wallets (owner_person_pnr);
+-- Create an index on the owner_person_fnr column
+CREATE INDEX idx_owner_person_fnr ON navnetjener.wallets (owner_person_fnr);
 
 -- Create an index on the owner_company_orgnr column
 CREATE INDEX idx_owner_company_orgnr ON navnetjener.wallets (owner_company_orgnr);
@@ -67,7 +67,7 @@ CREATE INDEX idx_wallet_address ON navnetjener.wallets (wallet_address);
   0xe0457130d824848853d398f1e358c31c415eaba4
   0xeae18965741f8d221d488512468f5f334198c1f1
 */
-INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_pnr, owner_person_birth_date, wallet_address) VALUES
+INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_fnr, owner_person_birth_date, wallet_address) VALUES
 ('Elise', 'Berg', '310780472', '2105800000', '210580', '0x0c6598f08872e79c8195882e059acf8cee7eb468'),
 ('Lars', 'Myhre', '310780472', '1403900001', '140390', '0x2f6fa0b1adf996a1795dabc4b06e66b18ff867a5'),
 ('Nina', 'Pedersen', '310780472', '1509760002', '150976', '0x39d1786d6c23955830146b3658c6f028507c0fbe'),
@@ -86,7 +86,7 @@ INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name
   0x1a5c49f5a6398b84a68746d5d1172cb38f71104e
   0xd1db4aac0a1d1bc5e71c0d90da1aae4c4354a3e4
 */
-INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_pnr, owner_person_birth_date, wallet_address) VALUES
+INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_fnr, owner_person_birth_date, wallet_address) VALUES
 ('Elise', 'Berg', '310812277', '2105800000', '210580', '0x1a5c49f5a6398b84a68746d5d1172cb38f71104e'),
 ('Lars', 'Myhre', '310812277', '1403900001', '140390', '0xd1db4aac0a1d1bc5e71c0d90da1aae4c4354a3e4');
 
@@ -99,7 +99,7 @@ INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name
   0x635e62f8e16087875bea87dd26d7845104ccb1e1
   0xcf1f029280db9169c15841962f2282e57f04640f
 */
-INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_pnr, owner_person_birth_date, wallet_address) VALUES
+INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_fnr, owner_person_birth_date, wallet_address) VALUES
 ('Emma', 'Olsen', '310767859', '2204750012', '220475', '0x4f4441a36e5870018a9481fd7dab9d326f71f1fe'),
 ('Hans', 'Iversen', '310767859', '0807810013', '080781', '0x635e62f8e16087875bea87dd26d7845104ccb1e1'),
 ('Sara', 'Johansen', '310767859', '1210900014', '121090', '0xcf1f029280db9169c15841962f2282e57f04640f');
@@ -120,7 +120,7 @@ INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name
   0xcc6aa2c0d12716916e19012e954a0630fa25e097
   0x8be848ce9ebba1e304e6daa1d6b1b40f17e478fd
 */
-INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_pnr, owner_person_birth_date, wallet_address) VALUES
+INSERT INTO navnetjener.wallets (owner_person_first_name, owner_person_last_name, cap_table_orgnr, owner_person_fnr, owner_person_birth_date, wallet_address) VALUES
 ('Elise', 'Berg', '815493000', '21058000000', '210580', '0xbbb12c73703a8dc9ae2569e1c7ad699a5ac8c782'),
 ('Lars', 'Myhre', '815493000', '14039000001', '140390', '0xcc6aa2c0d12716916e19012e954a0630fa25e097'),
 ('Nina', 'Pedersen', '815493000', '15097600002', '150976', '0x8be848ce9ebba1e304e6daa1d6b1b40f17e478fd');
