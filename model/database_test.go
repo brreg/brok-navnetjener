@@ -10,7 +10,7 @@ func TestParseWalletToPublicInfo(t *testing.T) {
 	personWallet := Wallet{
 		OwnerPersonFirstName: "firstName",
 		OwnerPersonLastName:  "lastName",
-		OwnerPersonPnr:       "12345678901",
+		OwnerPersonFnr:       "12345678901",
 		OwnerPersonBirthDate: "123456",
 		OwnerCompanyName:     "",
 		OwnerCompanyOrgnr:    "",

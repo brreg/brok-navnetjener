@@ -12,7 +12,7 @@ type Wallet struct {
 	gorm.Model
 	OwnerPersonFirstName string `gorm:"size:255;" json:"owner_person_first_name"`
 	OwnerPersonLastName  string `gorm:"size:255;" json:"owner_person_last_name"`
-	OwnerPersonPnr       string `gorm:"" json:"owner_person_pnr"`
+	OwnerPersonFnr       string `gorm:"" json:"owner_person_fnr"`
 	OwnerPersonBirthDate string `gorm:"" json:"owner_person_birth_date"`
 
 	OwnerCompanyName  string `gorm:"size:255;" json:"owner_company_name"`
@@ -74,18 +74,18 @@ func FindWalletByOrgnr(orgnr string) ([]PublicWalletInfo, error) {
 	return publicWallets, nil
 }
 
-func FindWalletByPnr(pnr string) ([]PublicWalletInfo, error) {
+func FindWalletByFnr(fnr string) ([]PublicWalletInfo, error) {
 	var wallets []Wallet
 	var publicWallets []PublicWalletInfo
-	safePnr := SanitizeString(pnr)
-	err := database.Database.Where("owner_person_pnr=?", safePnr).Find(&wallets).Error
+	safeFnr := SanitizeString(fnr)
+	err := database.Database.Where("owner_person_fnr=?", safeFnr).Find(&wallets).Error
 	if err != nil {
 		logrus.Error(err)
 		return []PublicWalletInfo{}, err
 	}
 
 	if len(wallets) == 0 {
-		logrus.Warn("could not find person in db with pnr: ", pnr[0:6], "*****")
+		logrus.Warn("could not find person in db with fnr: ", fnr[0:6], "*****")
 		// return empty with a new error if no person is found
 		return []PublicWalletInfo{}, gorm.ErrRecordNotFound
 	}
@@ -94,7 +94,7 @@ func FindWalletByPnr(pnr string) ([]PublicWalletInfo, error) {
 		publicWallets = append(publicWallets, parseWalletToPublicInfo(wallet))
 	}
 
-	logrus.Debug("found wallets in db with pnr: ", pnr[0:6], "*****", " wallets: ", publicWallets)
+	logrus.Debug("found wallets in db with fnr: ", fnr[0:6], "*****", " wallets: ", publicWallets)
 	return publicWallets, nil
 }
 
