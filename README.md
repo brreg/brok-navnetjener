@@ -55,7 +55,7 @@ cd brok-navnetjener
 git checkout go
 go mod download
 cp .env .env.local
-docker run --name navnetjener -d -e POSTGRES_PASSWORD="password" -v ./database/testdata.sql:/docker-entrypoint-initdb.d/testdata.sql -p 5432:5432 postgres -p 5432
+docker run --name navnetjener -d -e POSTGRES_PASSWORD="password" -v ./database/testdata.sql:/docker-entrypoint-initdb.d/testdata.sql -p 6666:6666 postgres -p 6666
 ```
 
 ### Kjør i dev
