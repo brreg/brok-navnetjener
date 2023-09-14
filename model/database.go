@@ -153,3 +153,39 @@ func parseWalletToPublicInfo(wallet Wallet) PublicWalletInfo {
 		},
 	}
 }
+
+func FindWalletByPersonFnrAndParentOrg(fnr string, parentOrgnr string) (string, error) {
+	logrus.Info("Received ParentOrgnr: ", parentOrgnr)
+
+	var wallet Wallet
+	safeFnr := SanitizeString(fnr)
+	safeParentOrgnr := SanitizeString(parentOrgnr)
+	err := database.Database.Where("owner_person_fnr=? AND cap_table_orgnr=?", safeFnr, safeParentOrgnr).First(&wallet).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return "", nil // return nil error when record is not found
+		}
+		logrus.Error("could not find wallet in db with fnr: ", fnr, " and parentOrgnr: ", parentOrgnr)
+		return "", err
+	}
+
+	return wallet.WalletAddress, nil
+}
+
+func FindWalletByOrgnrAndParentOrg(orgnr string, parentOrgnr string) (string, error) {
+	var wallet Wallet
+	safeOrgnr := SanitizeString(orgnr)
+	safeParentOrgnr := SanitizeString(parentOrgnr)
+	err := database.Database.Where("owner_company_orgnr=? AND cap_table_orgnr=?", safeOrgnr, safeParentOrgnr).First(&wallet).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return "", nil // return nil error when record is not found
+		}
+		logrus.Error("could not find wallet in db with orgnr: ", orgnr, " and parentOrgnr: ", parentOrgnr)
+		return "", err
+	}
+
+	return wallet.WalletAddress, nil
+}

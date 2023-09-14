@@ -103,6 +103,7 @@ func routerConfig() *gin.Engine {
 
 	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
 	v1.POST("/wallet", api.CreateWallet)
+	v1.POST("/wallets/bulk", api.GetWalletsForIdentifiers)
 
 	v1.GET("/person/:fnr", api.GetAllForetakForPerson)
 
