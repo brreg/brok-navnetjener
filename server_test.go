@@ -12,35 +12,26 @@ package main
 */
 
 import (
+	"brok/navnetjener/api"
 	"brok/navnetjener/model"
+	"brok/navnetjener/utils"
 	"bytes"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
-	r "math/rand"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/bxcodec/faker/v3"
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
-
-func setup() *gin.Engine {
-	loadEnv()
-	loadDatabase()
-	gin.SetMode(gin.TestMode)
-	return routerConfig()
-}
 
 var API_VERSION string = "/v1"
 
 func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
-	router := setup()
+
+	router := utils.Setup()
+	router.GET("/v1/wallet/:walletAddress", api.GetWalletByWalletAddress)
 
 	testWallet := CreateTestWallet()
 
@@ -58,7 +49,7 @@ func TestApiShouldReturnOneWalletWithCorrectWalletAddress(t *testing.T) {
 }
 
 func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
-	router := setup()
+	router := utils.Setup()
 
 	testWallet := CreateTestWallet()
 
@@ -79,7 +70,7 @@ func TestApiShouldCreateNewWalletEntryInDatabase(t *testing.T) {
 
 func TestApiShouldFindAllCapTablesBelongingToPerson(t *testing.T) {
 	// Setup
-	router := setup()
+	router := utils.Setup()
 
 	// Test
 	req, _ := http.NewRequest("GET", API_VERSION+"/person/21058000000", nil)
@@ -99,7 +90,7 @@ func TestApiShouldFindAllCapTablesBelongingToPerson(t *testing.T) {
 
 func TestApiShouldGiveAllShareholdersForCompany(t *testing.T) {
 	// Setup
-	router := setup()
+	router := utils.Setup()
 
 	// Test
 	req, _ := http.NewRequest("GET", API_VERSION+"/foretak/815493000", nil)
@@ -123,7 +114,7 @@ func TestApiShouldGiveAllShareholdersForCompany(t *testing.T) {
 }
 
 func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
-	router := setup()
+	router := utils.Setup()
 
 	// Generate a large payload using fields in model.Wallet
 	largeName := strings.Repeat("a", 1024*2) // 2KiB
@@ -150,33 +141,18 @@ func TestCreateWalletWithToLargeRequestBody(t *testing.T) {
 }
 
 func CreateTestWallet() model.Wallet {
-	dateBorn := randomNumber(0, 30)
-	mountBorn := randomNumber(1, 12)
-	yearBorn := randomNumber(68, 99)
+	dateBorn := utils.RandomNumber(0, 30)
+	mountBorn := utils.RandomNumber(1, 12)
+	yearBorn := utils.RandomNumber(68, 99)
 
 	birthDate := dateBorn + mountBorn + yearBorn
 
 	return model.Wallet{
 		OwnerPersonFirstName: faker.FirstNameFemale(),
 		OwnerPersonLastName:  faker.LastName(),
-		CapTableOrgnr:        randomOrgnr(),
+		CapTableOrgnr:        utils.RandomOrgnr(),
 		OwnerPersonFnr:       birthDate + "00000",
 		OwnerPersonBirthDate: birthDate,
-		WalletAddress:        randomWalletAddress(),
+		WalletAddress:        utils.RandomWalletAddress(),
 	}
-}
-
-func randomNumber(min int, max int) string {
-	random := r.New(r.NewSource(time.Now().UnixNano()))
-	return fmt.Sprintf("%02d", random.Intn(max-min)+min)
-}
-
-func randomOrgnr() string {
-	return randomNumber(111111111, 999999999)
-}
-
-func randomWalletAddress() string {
-	bytes := make([]byte, 20)
-	rand.Read(bytes)
-	return "0x" + hex.EncodeToString(bytes)
 }
