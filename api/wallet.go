@@ -29,7 +29,7 @@ func GetWalletByWalletAddress(context *gin.Context) {
 }
 
 func CreateWallet(context *gin.Context) {
-	var newWallet model.Wallet
+	var newWallet []model.Wallet
 
 	if err := context.ShouldBindJSON(&newWallet); err != nil {
 		// Check if the error is because of large request body
@@ -41,17 +41,21 @@ func CreateWallet(context *gin.Context) {
 		return
 	}
 
-	if newWallet.OwnerPersonFnr != "" {
-		newWallet.OwnerPersonBirthDate = newWallet.OwnerPersonFnr[:6]
+	var savedWalletList []*model.Wallet
+
+	for _, wallet := range newWallet {
+		if wallet.OwnerPersonFnr != "" {
+			wallet.OwnerPersonBirthDate = wallet.OwnerPersonFnr[:6]
+		}
+		savedWallet, err := wallet.Save()
+		if err != nil {
+			context.JSON(http.StatusBadRequest, gin.H{"error": "Could not store in database"})
+			return
+		}
+		savedWalletList = append(savedWalletList, savedWallet)
 	}
 
-	savedWallet, err := newWallet.Save()
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Could not store in database"})
-		return
-	}
-
-	context.JSON(http.StatusCreated, gin.H{"wallet": savedWallet})
+	context.JSON(http.StatusCreated, gin.H{"wallet": savedWalletList})
 }
 
 // Used for bulk lookup
