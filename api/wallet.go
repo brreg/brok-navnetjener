@@ -59,13 +59,18 @@ func CreateWallet(context *gin.Context) {
 }
 
 // Used for bulk lookup
+type WalletInfo struct {
+	Identifier    string  `json:"identifier"`
+	WalletAddress *string `json:"walletAddress"`
+}
+
 type BulkLookupRequest struct {
 	Identifiers []string `json:"identifiers"`
 	ParentOrgnr string   `json:"parentOrgnr"`
 }
 
 type BulkLookupResponse struct {
-	Wallets map[string]string `json:"wallets"`
+	Wallets []WalletInfo `json:"wallets"`
 }
 
 func FindWalletByPersonFnrAndParentOrg(fnr string, parentOrgnr string) (string, error) {
@@ -92,7 +97,7 @@ func FindWalletByPersonFnrAndParentOrg(fnr string, parentOrgnr string) (string, 
 }
 
 func GetWalletsForIdentifiers(context *gin.Context) {
-	var req BulkLookupRequest
+	var req BulkLookupRequest // Antatt å være definert et annet sted
 
 	// Parse the JSON body
 	if err := context.ShouldBindJSON(&req); err != nil {
@@ -103,17 +108,17 @@ func GetWalletsForIdentifiers(context *gin.Context) {
 	logrus.Info("Parsed ParentOrgnr: ", req.ParentOrgnr)
 
 	// Initialize the response object
-	response := BulkLookupResponse{
-		Wallets: make(map[string]string),
-	}
+	response := make([]WalletInfo, len(req.Identifiers))
 
-	// log the while req object
-	logrus.Warn("Request: ", req)
+	logrus.Info("Request: ", req)
 
 	// Loop through identifiers
-	for _, id := range req.Identifiers {
-		var walletAddress string
+	for i, id := range req.Identifiers {
+		var walletInfo WalletInfo
+		walletInfo.Identifier = id // set identifier
+
 		var err error
+		var walletAddress string // initialize walletAddress as an empty string
 
 		// Check if identifier is for person or foretak based on its length
 		if len(id) == 11 { // It's a fødselsnummer
@@ -121,7 +126,7 @@ func GetWalletsForIdentifiers(context *gin.Context) {
 		} else if len(id) == 9 { // It's an orgnr
 			walletAddress, err = model.FindWalletByOrgnrAndParentOrg(id, req.ParentOrgnr)
 		} else {
-			// Invalid identifier, skip to next
+			// Invalid identifier, skip to the next
 			continue
 		}
 
@@ -130,15 +135,13 @@ func GetWalletsForIdentifiers(context *gin.Context) {
 			continue
 		}
 
-		// If a wallet was found, add to the response
 		if walletAddress != "" {
-			response.Wallets[id] = walletAddress
-		} else {
-			// Mark as null (no wallet found)
-			response.Wallets[id] = "null"
+			walletInfo.WalletAddress = &walletAddress // set wallet address
 		}
+
+		response[i] = walletInfo // populate the response array at index i
 	}
 
 	// Return the final response
-	context.JSON(http.StatusOK, response)
+	context.JSON(http.StatusOK, gin.H{"wallets": response})
 }

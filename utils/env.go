@@ -10,7 +10,7 @@ import (
 )
 
 func loadEnv() {
-	file, err := FindFile(".env")
+	file, err := FindFile(".env.local")
 
 	if err != nil {
 		logrus.Error(err)

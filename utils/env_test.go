@@ -9,7 +9,7 @@ import (
 )
 
 func TestShouldFindEnvFile(t *testing.T) {
-	file, _ := utils.FindFile(".env")
+	file, _ := utils.FindFile(".env.local")
 	fmt.Println("file")
 	fmt.Println(file)
 	assert.Equal(t, true, true)
