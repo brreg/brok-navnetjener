@@ -74,6 +74,38 @@ func FindWalletByOrgnr(orgnr string) ([]PublicWalletInfo, error) {
 	return publicWallets, nil
 }
 
+func FindWallet(id string) ([]PublicWalletInfo, error) {
+	var wallets []Wallet
+	var publicWallets []PublicWalletInfo
+	safeId := SanitizeString(id)
+	err := database.Database.Where("owner_person_fnr=? OR owner_company_orgnr=?", safeId, safeId).Find(&wallets).Error
+	if err != nil {
+		logrus.Error(err)
+		return []PublicWalletInfo{}, err
+	}
+
+	if len(wallets) == 0 {
+		if len(id) == 11 {
+			logrus.Warn("could not find person in db with fnr: ", id[0:6], "*****")
+		}
+		logrus.Warn("could not find organization in db with orgnr: ", id)
+
+		// return empty with a new error if no person is found
+		return []PublicWalletInfo{}, gorm.ErrRecordNotFound
+	}
+
+	for _, wallet := range wallets {
+		publicWallets = append(publicWallets, parseWalletToPublicInfo(wallet))
+	}
+
+	if len(id) == 11 {
+		logrus.Debug("found wallets in db with fnr: ", id[0:6], "*****", " wallets: ", publicWallets)
+	}
+	logrus.Debug("found wallets in db with orgnr: ", id, " wallets: ", publicWallets)
+
+	return publicWallets, nil
+}
+
 func FindWalletByFnr(fnr string) ([]PublicWalletInfo, error) {
 	var wallets []Wallet
 	var publicWallets []PublicWalletInfo
