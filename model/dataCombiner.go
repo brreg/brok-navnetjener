@@ -8,37 +8,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// FindAllCapTablesForPerson returns all captables for a person
-// first it looks in the database for a person matching the fnr
-// then it uses orgnr from the database to find captables from TheGraph
-func FindAllCapTablesForPerson(fnr string) ([]CapTable, error) {
-	wallets, err := FindWalletByFnr(fnr)
-	if err != nil {
-		return []CapTable{}, err
-	}
-
-	var orgnrList []string
-	for _, wallet := range wallets {
-		orgnrList = append(orgnrList, fmt.Sprint(wallet.CapTableOrgnr))
-	}
-
-	logrus.Debug("found orgnrList in db with fnr: ", fnr[0:6], "*****", " orgnrList: ", orgnrList)
-
-	captables, err := FindAllCaptableByOrgnrListFromTheGraph(orgnrList)
-	if err != nil {
-		return []CapTable{}, err
-	}
-
-	for i, captable := range captables {
-		captables[i], err = mergeDataFromTheGraphAndDatabase(captable)
-		if err != nil {
-			return []CapTable{}, err
-		}
-	}
-
-	return captables, nil
-}
-
 // FindAllCapTables returns all captables for a person or organization
 // first it looks in the database for a owner matching the id
 // then it uses orgnr from the database to find captables from TheGraph
