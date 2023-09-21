@@ -20,14 +20,15 @@ func apiRoutes(router *gin.Engine) {
 	// Group API endpoints in /v1
 	v1 := router.Group("/v1")
 
-	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
 	v1.POST("/wallet", api.CreateWallet)
-	v1.POST("/wallets/bulk", api.GetWalletsForIdentifiers)
+	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
 
-	v1.GET("/person/:fnr", api.GetAllForetakForPerson)
+	v1.GET("/aksjeeier/:id", api.GetAllForetakForAksjeeier)
 
-	v1.GET("/foretak/:orgnr", api.GetForetakByOrgnr)
-	v1.GET("/foretak", api.GetForetak)
+	v1.GET("/aksjebok/", api.GetForetak)
+	v1.GET("/aksjebok/:orgnr", api.GetForetakByOrgnr)
+	v1.GET("/aksjebok/:orgnr/balanse/:id", api.GetNumberOfSharesForOwnerOfAForetak)
+	v1.POST("/aksjebok/:orgnr/aksjeeier", api.GetOwnersForForetak)
 }
 
 func serveApplication(router *gin.Engine) {

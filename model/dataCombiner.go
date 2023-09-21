@@ -2,16 +2,17 @@ package model
 
 import (
 	"brok/navnetjener/utils"
+	"errors"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
 )
 
-// FindAllCapTablesForPerson returns all captables for a person
-// first it looks in the database for a person matching the fnr
+// FindAllCapTables returns all captables for a person or organization
+// first it looks in the database for a owner matching the id
 // then it uses orgnr from the database to find captables from TheGraph
-func FindAllCapTablesForPerson(fnr string) ([]CapTable, error) {
-	wallets, err := FindWalletByFnr(fnr)
+func FindAllCapTables(id string) ([]CapTable, error) {
+	wallets, err := FindWallet(id)
 	if err != nil {
 		return []CapTable{}, err
 	}
@@ -21,7 +22,7 @@ func FindAllCapTablesForPerson(fnr string) ([]CapTable, error) {
 		orgnrList = append(orgnrList, fmt.Sprint(wallet.CapTableOrgnr))
 	}
 
-	logrus.Debug("found orgnrList in db with fnr: ", fnr[0:6], "*****", " orgnrList: ", orgnrList)
+	logrus.Debug("found orgnrList in db with id: ", id[0:6], "*****", " orgnrList: ", orgnrList)
 
 	captables, err := FindAllCaptableByOrgnrListFromTheGraph(orgnrList)
 	if err != nil {
@@ -52,6 +53,23 @@ func FindCaptableByOrgnr(orgnr string) (CapTable, error) {
 	}
 
 	return captable, nil
+}
+
+func FindNumberOfSharesForOwnerOfCaptable(capTable CapTable, ownerId string) (string, error) {
+	ownerWallets, err := FindWallet(ownerId)
+	if err != nil {
+		return "", err
+	}
+
+	for _, ownerWallet := range ownerWallets {
+		for _, tokenHolder := range capTable.TokenHolders {
+			if ownerWallet.Owner == tokenHolder.Owner {
+				return tokenHolder.Balances[0].Amount, nil
+			}
+		}
+	}
+
+	return "", errors.New("owner does not have any shares in this company")
 }
 
 // FindForetak returns 25 foretak from TheGraph and the database
