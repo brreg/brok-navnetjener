@@ -50,7 +50,6 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 ```bash
 git clone git@github.com:brreg/brok-navnetjener.git
 cd brok-navnetjener
-git checkout go
 go mod download
 cp .env .env.local
 docker run --name navnetjener -d -e POSTGRES_PASSWORD="password" -v ./database/testdata.sql:/docker-entrypoint-initdb.d/testdata.sql -p 6666:6666 postgres -p 6666
