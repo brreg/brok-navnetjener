@@ -10,15 +10,16 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 
 * `POST /wallet firstname, lastename, ssn, walletAddress`: Oppretter en ny wallet-mapping.
 * `GET /wallet/{walletAddress}`: Returnerer navn og fødselsdato for en gitt lommebokadresse.
-* `GET /wallet`: Lister ut registrert navn og fødselsdato.
-* Tester: Inkluderer tester for å validere systemets funksjonalitet.
+* `GET /aksjeeier/{orgnr/fnr}`: Liste med alle selskapene personen eller organisasjonen eier aksjer i
+* `GET /aksjebok/?page=0`: Liste med alle selskapene på Brøk, 25 foretak per side
+* `GET /aksjebok/{orgnr}`: Returnerer selskapet med matchende orgnr
+* `GET /aksjebok/{orgnr}/balanse/{orgnr/fnr}`: Antall aksjer en person eller organisasjon eier i et foretak
+* `POST /akejebok/{orgnr}/aksjeeier`: Tar inn en liste med personer og organisasjoner, og svarer om disse eier aksjer i foretaket eller ikke
+* Tester: Inkluderer tester for å validere systemets funksjonalitet, er plassert i `/api` mappen.
 
 ### Planlagt:
 
-* `GET /company/{orgnr}`: Lister ut alle registrerte navn og fødselsdato.
-* Logging: For å overvåke og feilsøke systemets aktiviteter.
 * Auth: Evt. integrere med BR sin API manager for autentisering.
-* `Read(SSN)`: Returnerer alle lommebokadresser tilhørende brukeren.
 * Integrere FM Person i Navnetjeneren
 
 ### Fremtidig arbeid
@@ -35,10 +36,6 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 ## Beskyttelse mot datakryping
 
 * Hvis nødvendig, kan man implementere throttling for å begrense antall spørringer. F.eks. DN vil ha behov for mange spørringer. Ongoing work med Sverre.
-
-## Produksjon
-
-* Vurder å slå av `GET /wallet`.
 
 ## Oppsett for utvikling
 
@@ -75,5 +72,7 @@ docker run --name navnetjener -d -e POSTGRES_PASSWORD="password" -v ./database/t
 ## Arkitektur
 
 Navnetjeneren i den overordnede arkitekturen kan sees i følgende diagram:
+![image](https://github.com/brreg/brok-navnetjener/assets/18251869/4929baf9-35b6-4dea-b21c-77d57f185608)
+
 
 ![image](https://github.com/brreg/brok-navnetjener/assets/877417/266b0aaa-81d1-4fa6-a1f3-a463f96bcca6)
