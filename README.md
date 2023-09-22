@@ -15,7 +15,8 @@ API for BRØK Navnetjener er designet for å håndtere interaksjonen mellom navn
 * `GET /aksjebok/{orgnr}`: Returnerer selskapet med matchende orgnr
 * `GET /aksjebok/{orgnr}/balanse/{orgnr/fnr}`: Antall aksjer en person eller organisasjon eier i et foretak
 * `POST /akejebok/{orgnr}/aksjeeier`: Tar inn en liste med personer og organisasjoner, og svarer om disse eier aksjer i foretaket eller ikke
-* Tester: Inkluderer tester for å validere systemets funksjonalitet, er plassert i `/api` mappen.
+* Tester: Inkluderer tester for å validere systemets funksjonalitet, de viktigste testene er plassert i `/api` mappen. Kjør testene med `go test ./api ./model ./utils`
+
 
 ### Planlagt:
 

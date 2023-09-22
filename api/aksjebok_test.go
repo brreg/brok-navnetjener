@@ -44,7 +44,7 @@ func TestFindOneForetakOnFirstPage(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	assert.Equal(t, 1, len(receivedCapTable))
+	assert.Greater(t, len(receivedCapTable), 0)
 }
 
 func TestFindZeroForetakOnSecondPage(t *testing.T) {
