@@ -34,7 +34,7 @@ func apiRoutes(router *gin.Engine) {
 func serveApplication(router *gin.Engine) {
 	port, exists := os.LookupEnv("SERVER_PORT")
 	if !exists {
-		logrus.Warn("SERVER_PORT environment variable not set, using default port 8080")
+		logrus.Warn("SERVER_PORT environment variable not set, using default port 8080 ")
 		port = "8080"
 	}
 
