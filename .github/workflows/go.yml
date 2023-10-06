@@ -38,4 +38,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           file: ./Dockerfile.db
           push: true
-          tags: ghcr.io/brreg/brok-navnetjener:latest
+          tags: ghcr.io/brreg/brok-navnetjener-db:latest
