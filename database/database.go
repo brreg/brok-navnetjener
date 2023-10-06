@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
@@ -46,16 +47,21 @@ func Connect() {
 	}
 
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Europe/Oslo", host, username, password, databaseName, port, sslmode)
-	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+	gormConfig := &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "navnetjener.",
 			SingularTable: false,
-		},
-	})
+		}}
 
-	if err != nil {
-		panic(err)
-	} else {
-		logrus.Info("Successfully connected to the database")
+	timeToWaitBetweenRetries := 10 * time.Second
+	for {
+		Database, err = gorm.Open(postgres.Open(dsn), gormConfig)
+		if err == nil {
+			break
+		}
+		logrus.Errorf("Attempt to connect to database failed. Retrying in %s...\n", timeToWaitBetweenRetries)
+		time.Sleep(timeToWaitBetweenRetries)
 	}
+
+	logrus.Info("Successfully connected to the database")
 }
