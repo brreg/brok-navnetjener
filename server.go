@@ -17,8 +17,6 @@ func main() {
 
 func apiRoutes(router *gin.Engine) {
 
-	router.GET("/health/", api.Health)
-
 	// Group API endpoints in /v1
 	v1 := router.Group("/v1")
 
@@ -32,6 +30,7 @@ func apiRoutes(router *gin.Engine) {
 	v1.GET("/aksjebok/:orgnr/balanse/:id", api.GetNumberOfSharesForOwnerOfAForetak)
 	v1.POST("/aksjebok/:orgnr/aksjeeier", api.GetOwnersForForetak)
 
+	v1.GET("/health/", api.Health)
 }
 
 func serveApplication(router *gin.Engine) {
