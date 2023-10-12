@@ -1,7 +1,6 @@
 package model
 
 import (
-	"brok/navnetjener/utils"
 	"errors"
 	"fmt"
 
@@ -94,10 +93,7 @@ func FindForetak(page int) ([]CapTable, error) {
 // mergeDataFromTheGraphAndDatabase combines data from TheGraph and the database
 // return a CapTable struct with person data
 func mergeDataFromTheGraphAndDatabase(captable CapTable) (CapTable, error) {
-	captable.TotalSupply = utils.ToDecimal(captable.TotalSupply)
-
 	for i, tokenHolder := range captable.TokenHolders {
-		tokenHolder = convertTokenHolderWeiToDecimals(tokenHolder)
 		wallet, err := FindWalletByWalletAddress(tokenHolder.Address)
 		if err != nil {
 			logrus.Error(err)
@@ -108,12 +104,4 @@ func mergeDataFromTheGraphAndDatabase(captable CapTable) (CapTable, error) {
 	}
 
 	return captable, nil
-}
-
-// ConvertTokenHolderWeiToDecimals converts the tokenHolder balance from wei to decimals
-func convertTokenHolderWeiToDecimals(tokenHolder TokenHolder) TokenHolder {
-	for i, balance := range tokenHolder.Balances {
-		tokenHolder.Balances[i].Amount = utils.ToDecimal(balance.Amount)
-	}
-	return tokenHolder
 }
