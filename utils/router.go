@@ -21,6 +21,8 @@ func Setup() *gin.Engine {
 
 func routerConfig() *gin.Engine {
 
+	router := gin.New()
+
 	env, exists := os.LookupEnv("ENVIRONMENT")
 	if !exists {
 		logrus.Warn("ENVIRONMENT environment variable not set, using default value: dev")
@@ -35,7 +37,10 @@ func routerConfig() *gin.Engine {
 		gin.SetMode(gin.DebugMode)
 	}
 
-	router := gin.Default()
+	router.Use(
+		gin.LoggerWithWriter(gin.DefaultWriter, "/v1/health/"),
+		gin.Recovery(),
+	)
 
 	return router
 }
