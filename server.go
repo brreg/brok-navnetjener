@@ -20,15 +20,24 @@ func apiRoutes(router *gin.Engine) {
 	// Group API endpoints in /v1
 	v1 := router.Group("/v1")
 
-	v1.POST("/wallet", api.CreateWallet)
-	v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
+	limit, exists := os.LookupEnv("LIMIT_ENDPOINTS")
+	if !exists {
+		logrus.Warn("LIMIT_ENDPOINTS environment variable not set, using default false")
+		limit = "false"
+	}
 
-	v1.GET("/aksjeeier/:id", api.GetAllForetakForAksjeeier)
+	// Don't use privileged endpoints if feature toggle LIMIT_ENDPOINTS is set
+	if limit == "false" {
+		v1.POST("/wallet", api.CreateWallet)
+		v1.GET("/wallet/:walletAddress", api.GetWalletByWalletAddress)
+
+		v1.GET("/aksjeeier/:id", api.GetAllForetakForAksjeeier)
+		v1.GET("/aksjebok/:orgnr/balanse/:id", api.GetNumberOfSharesForOwnerOfAForetak)
+		v1.POST("/aksjebok/:orgnr/aksjeeier", api.GetOwnersForForetak)
+	}
 
 	v1.GET("/aksjebok/", api.GetForetak)
 	v1.GET("/aksjebok/:orgnr", api.GetForetakByOrgnr)
-	v1.GET("/aksjebok/:orgnr/balanse/:id", api.GetNumberOfSharesForOwnerOfAForetak)
-	v1.POST("/aksjebok/:orgnr/aksjeeier", api.GetOwnersForForetak)
 
 	v1.GET("/health/", api.Health)
 }
