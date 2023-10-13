@@ -15,7 +15,7 @@ func SanitizeWallet(w *Wallet) {
 	w.OwnerPersonFirstName = SanitizeString(w.OwnerPersonFirstName)
 	w.OwnerPersonLastName = SanitizeString(w.OwnerPersonLastName)
 	w.OwnerPersonFnr = SanitizeString(w.OwnerPersonFnr)
-	w.OwnerPersonBirthDate = SanitizeString(w.OwnerPersonBirthDate)
+	w.OwnerPersonBirthYear = SanitizeString(w.OwnerPersonBirthYear)
 	w.OwnerCompanyName = SanitizeString(w.OwnerCompanyName)
 	w.OwnerCompanyOrgnr = SanitizeString(w.OwnerCompanyOrgnr)
 	w.WalletAddress = SanitizeString(w.WalletAddress)

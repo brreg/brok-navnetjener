@@ -2,6 +2,7 @@ package api
 
 import (
 	"brok/navnetjener/model"
+	"brok/navnetjener/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -41,7 +42,7 @@ func CreateWallet(context *gin.Context) {
 
 	for _, wallet := range newWallet {
 		if wallet.OwnerPersonFnr != "" {
-			wallet.OwnerPersonBirthDate = wallet.OwnerPersonFnr[:6]
+			wallet.OwnerPersonBirthYear = utils.FindBirthYear(wallet.OwnerPersonFnr)
 		}
 		savedWallet, err := wallet.Save()
 		if err != nil {

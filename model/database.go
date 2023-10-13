@@ -13,7 +13,7 @@ type Wallet struct {
 	OwnerPersonFirstName string `gorm:"size:255;" json:"owner_person_first_name"`
 	OwnerPersonLastName  string `gorm:"size:255;" json:"owner_person_last_name"`
 	OwnerPersonFnr       string `gorm:"" json:"owner_person_fnr"`
-	OwnerPersonBirthDate string `gorm:"" json:"owner_person_birth_date"`
+	OwnerPersonBirthYear string `gorm:"" json:"owner_person_birth_year"`
 
 	OwnerCompanyName  string `gorm:"size:255;" json:"owner_company_name"`
 	OwnerCompanyOrgnr string `gorm:"size:9;" json:"owner_company_orgnr"`
@@ -30,7 +30,7 @@ type Owner struct {
 type Person struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
-	BirthDate string `json:"birth_date"`
+	BirthYear string `json:"birth_year"`
 }
 
 type Company struct {
@@ -176,7 +176,7 @@ func parseWalletToPublicInfo(wallet Wallet) PublicWalletInfo {
 			Person: Person{
 				FirstName: wallet.OwnerPersonFirstName,
 				LastName:  wallet.OwnerPersonLastName,
-				BirthDate: wallet.OwnerPersonBirthDate,
+				BirthYear: wallet.OwnerPersonBirthYear,
 			},
 			Company: Company{
 				Name:  wallet.OwnerCompanyName,

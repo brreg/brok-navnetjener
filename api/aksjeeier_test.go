@@ -99,7 +99,7 @@ func TestShouldFailWithBadRequest2(t *testing.T) {
 func contains(captables []model.CapTable, id string) bool {
 	for _, captable := range captables {
 		for _, tokenHolder := range captable.TokenHolders {
-			if tokenHolder.Owner.Person.BirthDate == id[0:6] {
+			if tokenHolder.Owner.Person.BirthYear == id[4:6] {
 				return true
 			}
 			if tokenHolder.Owner.Company.Orgnr == id {
