@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -41,6 +42,14 @@ func routerConfig() *gin.Engine {
 		gin.LoggerWithWriter(gin.DefaultWriter, "/v1/health/"),
 		gin.Recovery(),
 	)
+
+	router.Use(cors.New(cors.Config{
+		AllowMethods:     []string{"GET"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowAllOrigins:  true,
+		AllowCredentials: true,
+	}))
 
 	return router
 }

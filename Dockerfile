@@ -12,8 +12,7 @@ COPY model ./model
 COPY utils ./utils
 COPY server.go .
 
-RUN ls -R
-RUN go build -v -o /navnetjener
+RUN go build -o /navnetjener
 
 FROM registry.access.redhat.com/ubi9-minimal
 
