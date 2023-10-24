@@ -20,4 +20,7 @@ func TestSanitizeString(t *testing.T) {
 
 	word4 := strings.ToLower("0x8be848ce9ebba1e304e6daa1d6b1b40F17E478FD")
 	assert.Equal(t, word4, "0x8be848ce9ebba1e304e6daa1d6b1b40f17e478fd")
+
+	word5 := model.SanitizeString("Bjørn Rino")
+	assert.Equal(t, word5, "Bjørn Rino")
 }

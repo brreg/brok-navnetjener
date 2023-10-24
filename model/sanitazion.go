@@ -1,12 +1,19 @@
 package model
 
 import (
-	"github.com/mrz1836/go-sanitize"
+	"regexp"
 )
+
+var (
+	alphaNumericWithSpacesRegExp = regexp.MustCompile(`[^a-zA-Z0-9æøåÆØÅ\s]`)
+)
+
+// emptySpace is an empty space for replacing
+var emptySpace = []byte("")
 
 // Only allow AlphaNumeric character's to return
 func SanitizeString(input string) string {
-	return sanitize.AlphaNumeric(input, true)
+	return string(alphaNumericWithSpacesRegExp.ReplaceAll([]byte(input), emptySpace))
 }
 
 func SanitizeWallet(w *Wallet) {
