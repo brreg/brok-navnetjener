@@ -36,6 +36,12 @@ func Connect() {
 		logrus.Error("DB_NAME environment variable not set")
 	}
 
+	schemaName, exists := os.LookupEnv("DB_SCHEMA_NAME")
+	if !exists {
+		logrus.Error("DB_NAME environment variable not set, using default name: navnetjener")
+		schemaName = "navnetjener"
+	}
+
 	port, exists := os.LookupEnv("DB_PORT")
 	if !exists {
 		logrus.Error("DB_PORT environment variable not set")
@@ -49,7 +55,7 @@ func Connect() {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=Europe/Oslo", host, username, password, databaseName, port, sslmode)
 	gormConfig := &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "navnetjener.",
+			TablePrefix:   schemaName + ".",
 			SingularTable: false,
 		}}
 
