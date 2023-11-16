@@ -54,6 +54,17 @@ func FindCaptableByOrgnr(orgnr string) (CapTable, error) {
 	return captable, nil
 }
 
+func filterOutOwnerWithNoShares(captable CapTable) CapTable {
+	tokenHoldersWithShares := []TokenHolder{}
+	for _, tokenHolder := range captable.TokenHolders {
+		if tokenHolder.Balances[0].Amount != "0" {
+			tokenHoldersWithShares = append(tokenHoldersWithShares, tokenHolder)
+		}
+	}
+	captable.TokenHolders = tokenHoldersWithShares
+	return captable
+}
+
 func FindNumberOfSharesForOwnerOfCaptable(capTable CapTable, ownerId string) (string, error) {
 	ownerWallets, err := FindWallet(ownerId)
 	if err != nil {
@@ -93,6 +104,7 @@ func FindForetak(page int) ([]CapTable, error) {
 // mergeDataFromTheGraphAndDatabase combines data from TheGraph and the database
 // return a CapTable struct with person data
 func mergeDataFromTheGraphAndDatabase(captable CapTable) (CapTable, error) {
+	captable = filterOutOwnerWithNoShares(captable)
 	for i, tokenHolder := range captable.TokenHolders {
 		wallet, err := FindWalletByWalletAddress(tokenHolder.Address)
 		if err != nil {
